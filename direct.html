@@ -1,5 +1,140 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>RHK Direct Messages</title><link rel="stylesheet" href="css/style.css"></head>
-<body><h3 style="padding: 20px;">Direct Messages Inbox</h3><a href="home.html" style="color: #0095f6; padding: 0 20px; display: block;">Back to Home</a></body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RHK Messages</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .notes-tray {
+      display: flex;
+      gap: 15px;
+      padding: 10px 15px;
+      overflow-x: auto;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    .notes-tray::-webkit-scrollbar { display: none; }
+    .note-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .note-bubble {
+      background: #262626;
+      padding: 6px 12px;
+      border-radius: 12px;
+      font-size: 11px;
+      margin-bottom: 5px;
+      max-width: 80px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      border: 1px solid #333;
+    }
+    .msg-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 15px;
+      cursor: pointer;
+    }
+    .msg-row:hover { background: #0a0a0a; }
+  </style>
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-bottom: 1px solid #262626;">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <a href="home.html" style="color: #fff;"><svg style="width: 24px; height: 24px; fill: #fff;" viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg></a>
+      <span id="headerUsername" style="font-weight: 700; font-size: 18px;">username</span>
+    </div>
+    <svg style="width: 24px; height: 24px; fill: #fff;" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/></svg>
+  </div>
+
+  <div style="padding: 10px 15px;">
+    <input type="text" class="input-field" placeholder="Search" style="margin-bottom: 0; background: #262626; border: none; border-radius: 8px; padding-left: 15px;">
+  </div>
+
+  <!-- Notes Bubble Tray -->
+  <div class="notes-tray" id="notesTray">
+    <div class="note-item">
+      <div class="note-bubble">What's new...</div>
+      <div id="myNoteAvatar" style="width: 60px; height: 60px; border-radius: 50%; background-size: cover; background-position: center; background-color: #222;"></div>
+      <span style="font-size: 11px; color: #888; margin-top: 4px;">Your note</span>
+    </div>
+  </div>
+
+  <div style="display: flex; justify-content: space-between; padding: 15px 15px 5px 15px; font-weight: 700; font-size: 16px;">
+    <span>Messages</span>
+    <span style="color: #0095f6; font-size: 14px; cursor: pointer;">Requests</span>
+  </div>
+
+  <div id="messagesList">
+    <!-- Message items populated here -->
+  </div>
+
+  <script type="module">
+    import { auth, db, collection, getDocs, doc, getDoc, onAuthStateChanged } from "./js/firebase-init.js";
+
+    const headerUsername = document.getElementById("headerUsername");
+    const myNoteAvatar = document.getElementById("myNoteAvatar");
+    const notesTray = document.getElementById("notesTray");
+    const messagesList = document.getElementById("messagesList");
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const userSnap = await getDoc(doc(db, "users", user.uid));
+        if (userSnap.exists()) {
+          const uData = userSnap.data();
+          headerUsername.innerText = uData.username;
+          myNoteAvatar.style.backgroundImage = `url('${uData.photoURL}')`;
+
+          // Load other users for messages & notes tray
+          const usersSnap = await getDocs(collection(db, "users"));
+          let msgsHtml = "";
+          let notesHtml = `<div class="note-item">
+            <div class="note-bubble">What's new...</div>
+            <div style="width: 60px; height: 60px; border-radius: 50%; background-image: url('${uData.photoURL}'); background-size: cover; background-position: center;"></div>
+            <span style="font-size: 11px; color: #888; margin-top: 4px;">Your note</span>
+          </div>`;
+
+          usersSnap.forEach((docSnap) => {
+            const other = docSnap.data();
+            if (other.uid !== user.uid) {
+              notesHtml += `
+                <div class="note-item">
+                  <div class="note-bubble">Hello! ✨</div>
+                  <div style="width: 60px; height: 60px; border-radius: 50%; background-image: url('${other.photoURL}'); background-size: cover; background-position: center;"></div>
+                  <span style="font-size: 11px; color: #aaa; margin-top: 4px; max-width: 65px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${other.username}</span>
+                </div>
+              `;
+
+              msgsHtml += `
+                <div class="msg-row" onclick="alert('Opening chat with ${other.username}')">
+                  <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 50px; height: 50px; border-radius: 50%; background-image: url('${other.photoURL}'); background-size: cover; background-position: center;"></div>
+                    <div>
+                      <div style="font-weight: 600; font-size: 14px;">${other.username}</div>
+                      <div style="color: #888; font-size: 12px; margin-top: 2px;">Active recently</div>
+                    </div>
+                  </div>
+                  <svg style="width: 20px; height: 20px; fill: #888;" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                </div>
+              `;
+            }
+          });
+
+          notesTray.innerHTML = notesHtml;
+          messagesList.innerHTML = msgsHtml || `<p style="padding: 20px; color: #888; text-align: center;">No messages yet.</p>`;
+        }
+      } else {
+        window.location.href = "index.html";
+      }
+    });
+  </script>
+</body>
 </html>
