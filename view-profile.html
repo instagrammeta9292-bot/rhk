@@ -47,9 +47,11 @@
       padding: 12px;
       cursor: pointer;
       border-bottom: 2px solid transparent;
+      fill: #888;
     }
     .tab-item.active {
       border-bottom-color: #fff;
+      fill: #fff;
     }
     .user-posts-grid {
       display: grid;
@@ -104,12 +106,21 @@
   </div>
 
   <div class="profile-tabs">
-    <div class="tab-item active">
-      <svg style="width: 20px; height: 20px; fill: #fff;" viewBox="0 0 24 24"><path d="M3 3v18h18V3H3zm8 16H5v-6h6v6zm0-8H5V5h6v6zm8 8h-6v-6h6v6zm0-8h-6V5h6v6z"/></svg>
+    <div class="tab-item active" id="tabPosts" onclick="switchTab('posts')">
+      <svg style="width: 20px; height: 20px;" viewBox="0 0 24 24"><path d="M3 3v18h18V3H3zm8 16H5v-6h6v6zm0-8H5V5h6v6zm8 8h-6v-6h6v6zm0-8h-6V5h6v6z"/></svg>
+    </div>
+    <div class="tab-item" id="tabReels" onclick="switchTab('reels')">
+      <svg style="width: 20px; height: 20px;" viewBox="0 0 24 24"><path d="M18 3H6c-1.66 0-3 1.34-3 3v12c0 1.66 1.34 3 3 3h12c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3zm-9 13.5v-9l7 4.5-7 4.5z"/></svg>
+    </div>
+    <div class="tab-item" id="tabStories" onclick="switchTab('stories')">
+      <svg style="width: 20px; height: 20px;" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
     </div>
   </div>
 
   <div class="user-posts-grid" id="userPostsGrid"></div>
+  <div id="noPostsPlaceholder" style="text-align: center; padding: 40px; display: none;">
+    <div style="font-weight: 700; font-size: 18px; margin-bottom: 5px;">No content found</div>
+  </div>
 
   <script type="module">
     import { auth, db, doc, getDoc, collection, getDocs, updateDoc, arrayUnion, arrayRemove, onAuthStateChanged } from "./js/firebase-init.js";
@@ -119,16 +130,17 @@
 
     const topUsernameText = document.getElementById("topUsernameText");
     const pAvatar = document.getElementById("pAvatar");
-    const pUsername = document.getElementById("pUsername");
     const pFullName = document.getElementById("pFullName");
     const pBio = document.getElementById("pBio");
     const postsCount = document.getElementById("postsCount");
     const followersCount = document.getElementById("followersCount");
     const followingCount = document.getElementById("followingCount");
     const userPostsGrid = document.getElementById("userPostsGrid");
+    const noPostsPlaceholder = document.getElementById("noPostsPlaceholder");
     const followBtn = document.getElementById("followBtn");
 
     let loggedInUser = null;
+    let targetUserPosts = [];
 
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
@@ -155,19 +167,19 @@
       followersCount.innerText = targetData.followers ? targetData.followers.length : 0;
       followingCount.innerText = targetData.following ? targetData.following.length : 0;
 
-      // Load user's posts
       const postsSnap = await getDocs(collection(db, "posts"));
-      let gridHtml = "";
-      let count = 0;
+      targetUserPosts = [];
+      let totalPostsCount = 0;
+
       postsSnap.forEach((docSnap) => {
         const p = docSnap.data();
         if (p.userId === targetUid) {
-          count++;
-          gridHtml += `<div class="grid-thumb" style="background-image: url('${p.mediaUrl}')"></div>`;
+          if (p.mediaType === 'post') totalPostsCount++;
+          targetUserPosts.push(p);
         }
       });
-      postsCount.innerText = count;
-      userPostsGrid.innerHTML = gridHtml;
+      postsCount.innerText = totalPostsCount;
+      renderGrid('post');
 
       const mySnap = await getDoc(doc(db, "users", loggedInUser.uid));
       const myData = mySnap.data();
@@ -195,7 +207,47 @@
         location.reload();
       };
     }
+
+    window.switchTab = (type) => {
+      document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
+      if(type === 'posts') document.getElementById('tabPosts').classList.add('active');
+      if(type === 'reels') document.getElementById('tabReels').classList.add('active');
+      if(type === 'stories') document.getElementById('tabStories').classList.add('active');
+
+      if(type === 'posts') renderGrid('post');
+      if(type === 'reels') renderGrid('reel');
+      if(type === 'stories') renderGrid('story');
+    };
+
+    function renderGrid(targetMediaType) {
+      let gridHtml = "";
+      let count = 0;
+
+      targetUserPosts.forEach(p => {
+        let matches = false;
+        if(targetMediaType === 'post' && p.mediaType === 'post') matches = true;
+        if(targetMediaType === 'reel' && p.mediaType === 'reel') matches = true;
+        if(targetMediaType === 'story' && (p.mediaType === 'story' || p.mediaType === 'story_video')) matches = true;
+
+        if(matches) {
+          count++;
+          let thumbUrl = p.mediaUrl;
+          if(p.mediaType === 'reel' || p.mediaType === 'story_video') {
+            thumbUrl = "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=300";
+          }
+          gridHtml += `<div class="grid-thumb" style="background-image: url('${thumbUrl}')"></div>`;
+        }
+      });
+
+      if (count > 0) {
+        userPostsGrid.style.display = "grid";
+        userPostsGrid.innerHTML = gridHtml;
+        noPostsPlaceholder.style.display = "none";
+      } else {
+        userPostsGrid.style.display = "none";
+        noPostsPlaceholder.style.display = "block";
+      }
+    }
   </script>
 </body>
 </html>
-
