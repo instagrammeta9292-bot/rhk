@@ -1,6 +1,24 @@
-import { auth, googleProvider, signInWithPopup, db, doc, getDoc, onAuthStateChanged } from "./firebase-init.js";
+import { auth, db, doc, getDoc, onAuthStateChanged } from "./firebase-init.js";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-const googleLoginBtn = document.getElementById("googleLoginBtn");
+const loginForm = document.getElementById("loginForm");
+const emailInput = document.getElementById("emailInput");
+const passwordInput = document.getElementById("passwordInput");
+const loginBtn = document.getElementById("loginBtn");
+const toggleModeText = document.getElementById("toggleModeText");
+
+let isSignUp = false;
+
+toggleModeText.addEventListener("click", () => {
+  isSignUp = !isSignUp;
+  if (isSignUp) {
+    loginBtn.innerText = "Sign Up";
+    toggleModeText.innerHTML = `Already have an account? <span style="color: #0095f6; font-weight: 600;">Sign in</span>`;
+  } else {
+    loginBtn.innerText = "Sign In";
+    toggleModeText.innerHTML = `Don't have an account? <span style="color: #0095f6; font-weight: 600;">Sign up</span>`;
+  }
+});
 
 onAuthStateChanged(auth, async (user) => {
   if (user) {
@@ -11,23 +29,44 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 
-if (googleLoginBtn) {
-  googleLoginBtn.addEventListener("click", async () => {
+if (loginForm) {
+  loginForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = emailInput.value.trim();
+    const password = passwordInput.value.trim();
+
+    if (!email || !password) {
+      alert("Please fill in all fields.");
+      return;
+    }
+
     try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const user = result.user;
+      if (isSignUp) {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        const userDocRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userDocRef);
 
-      const userDocRef = doc(db, "users", user.uid);
-      const userSnap = await getDoc(userDocRef);
-
-      if (userSnap.exists()) {
-        window.location.href = "home.html";
+        if (userSnap.exists()) {
+          window.location.href = "home.html";
+        } else {
+          window.location.href = "setup.html";
+        }
       } else {
-        window.location.href = "setup.html";
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        const userDocRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userDocRef);
+
+        if (userSnap.exists()) {
+          window.location.href = "home.html";
+        } else {
+          window.location.href = "setup.html";
+        }
       }
     } catch (error) {
       console.error("Auth Error:", error.message);
-      alert("Login failed.");
+      alert("Authentication failed: " + error.message);
     }
   });
 }
