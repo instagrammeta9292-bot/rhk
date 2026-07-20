@@ -83,4 +83,3 @@ setupForm.addEventListener("submit", async (e) => {
     alert("Failed to save profile details.");
   }
 });
-
