@@ -29,8 +29,9 @@
   <script type="module">
     import { auth, db, doc, getDoc, collection, addDoc, onAuthStateChanged } from "./js/firebase-init.js";
 
-    const CLOUD_NAME = "nhy9Ifkt";
-    const UPLOAD_PRESET = "rhk_upload"; // Ensure this preset is set to 'Unsigned' in your Cloudinary Dashboard Settings!
+    // FIX: Cloud Name converted to strict lowercase as per your dashboard
+    const CLOUD_NAME = "nhy9ifkt"; 
+    const UPLOAD_PRESET = "rhk_upload"; 
 
     const urlParams = new URLSearchParams(window.location.search);
     const uploadType = urlParams.get("type") || "post";
@@ -58,7 +59,6 @@
       if (!file) return;
 
       const fileURL = URL.createObjectURL(file);
-      // Keep input element safe while clearing container visuals
       previewContainer.innerHTML = '';
       
       if (file.type.startsWith('video')) {
@@ -101,7 +101,7 @@
         return;
       }
       if (!userData) {
-        alert("User data not loaded yet. Please wait a second and retry.");
+        alert("User data still loading. Please try again in a moment.");
         return;
       }
 
@@ -126,7 +126,7 @@
           await addDoc(collection(db, "posts"), {
             userId: currentUser.uid,
             username: userData.username,
-            userPhoto: userData.photoURL,
+            userPhoto: userData.photoURL || "https://icon-library.com/images/default-profile-icon/default-profile-icon-24.jpg",
             mediaUrl: data.secure_url,
             mediaType: uploadType,
             caption: captionInput.value.trim(),
@@ -135,14 +135,14 @@
 
           window.location.href = "home.html";
         } else {
-          console.error("Cloudinary Error Response:", data);
+          console.error("Cloudinary Error:", data);
           alert("Cloudinary Upload Failed: " + (data.error?.message || "Unknown error"));
           shareBtn.disabled = false;
           shareBtn.innerText = "Share Now";
         }
       } catch (err) {
-        console.error("Network or Fetch Error:", err);
-        alert("Network error during upload. Check console for details.");
+        console.error("Network Error:", err);
+        alert("Network error during upload. Check console configuration.");
         shareBtn.disabled = false;
         shareBtn.innerText = "Share Now";
       }
