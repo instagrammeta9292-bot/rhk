@@ -1,5 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>RHK Explore</title><link rel="stylesheet" href="css/style.css"></head>
-<body><h3 style="padding: 20px;">Explore Page</h3><a href="home.html" style="color: #0095f6; padding: 0 20px; display: block;">Back to Home</a></body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RHK Explore</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div style="padding: 15px;">
+    <input type="text" id="searchInput" class="input-field" placeholder="Search accounts (e.g. rahul)...">
+  </div>
+  <div id="searchResults"></div>
+
+  <!-- Bottom Navigation Bar -->
+  <nav class="bottom-nav">
+    <a href="home.html"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></a>
+    <a href="explore.html"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg></a>
+    <a href="reels.html"><svg viewBox="0 0 24 24"><path d="M18 3H6c-1.66 0-3 1.34-3 3v12c0 1.66 1.34 3 3 3h12c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3zm-9 13.5v-9l7 4.5-7 4.5z"/></svg></a>
+    <a href="upload.html"><svg viewBox="0 0 24 24"><path d="M19 11h-6V5h-2v6H5v2h6v6h2v-6h6z"/></svg></a>
+    <a href="profile.html"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg></a>
+  </nav>
+
+  <script type="module">
+    import { auth, db, collection, getDocs, onAuthStateChanged } from "./js/firebase-init.js";
+
+    const searchInput = document.getElementById("searchInput");
+    const searchResults = document.getElementById("searchResults");
+    let currentUserId = null;
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) currentUserId = user.uid;
+      else window.location.href = "index.html";
+    });
+
+    searchInput.addEventListener("input", async (e) => {
+      const term = e.target.value.trim().toLowerCase();
+      if (!term) {
+        searchResults.innerHTML = "";
+        return;
+      }
+
+      const querySnapshot = await getDocs(collection(db, "users"));
+      let html = "";
+      querySnapshot.forEach((docSnap) => {
+        const u = docSnap.data();
+        if (u.uid !== currentUserId && u.username.includes(term)) {
+          html += `
+            <a href="view-profile.html?uid=${u.uid}" class="user-search-item">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="width: 40px; height: 40px; border-radius: 50%; background-image: url('${u.photoURL}'); background-size: cover; background-position: center;"></div>
+                <div>
+                  <div style="font-weight: 600; font-size: 14px;">${u.username}</div>
+                  <div style="color: #888; font-size: 12px;">${u.fullName}</div>
+                </div>
+              </div>
+              <span style="color: #0095f6; font-size: 13px; font-weight: 600;">View</span>
+            </a>
+          `;
+        }
+      });
+      searchResults.innerHTML = html || `<p style="padding: 15px; color: #888;">No users found.</p>`;
+    });
+  </script>
+</body>
 </html>
