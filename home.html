@@ -21,7 +21,7 @@
 
   <!-- Stories Tray -->
   <div class="stories-container" id="storiesContainer">
-    <div class="story-item" onclick="openUploadForType('story')">
+    <div class="story-item" onclick="window.location.href='upload.html?type=story'">
       <div style="position: relative;">
         <div class="story-ring" style="background: #333;">
           <div class="story-img" id="userStoryAvatar" style="background-image: url('');"></div>
@@ -37,14 +37,45 @@
     <p style="text-align: center; padding: 40px; color: #888;">Loading feed...</p>
   </main>
 
-  <!-- Upload Action Modal (Post = Image Only | Story & Reels = Image & Video) -->
+  <!-- Upload Action Modal -->
   <div class="modal-overlay" id="uploadModal">
     <div class="modal-sheet">
       <div style="text-align: center; font-weight: 700; margin-bottom: 5px; color: #fff;">Create New</div>
-      <div class="modal-option" onclick="selectUploadType('post')">Post (Image Only)</div>
-      <div class="modal-option" onclick="selectUploadType('story')">Story (Photo & Video)</div>
-      <div class="modal-option" onclick="selectUploadType('reel')">Reel (Photo & Video)</div>
+      <div class="modal-option" onclick="window.location.href='upload.html?type=post'">Post (Image Only)</div>
+      <div class="modal-option" onclick="window.location.href='upload.html?type=story'">Story (Photo & Video)</div>
+      <div class="modal-option" onclick="window.location.href='upload.html?type=reel'">Reel (Photo & Video)</div>
       <div class="modal-option" style="background: #333; margin-top: 5px;" onclick="closeModal()">Cancel</div>
+    </div>
+  </div>
+
+  <!-- Immersive Story Viewer Overlay (Ref 2 Style) -->
+  <div class="story-viewer-overlay" id="storyViewer">
+    <div style="padding: 10px 15px; display: flex; flex-direction: column; gap: 8px;">
+      <div style="display: flex; gap: 4px; width: 100%;">
+        <div style="flex: 1; height: 2px; background: rgba(255,255,255,0.8); border-radius: 2px;"></div>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div id="viewerUserAvatar" style="width: 32px; height: 32px; border-radius: 50%; background-size: cover; background-position: center;"></div>
+          <span id="viewerUsername" style="font-weight: 600; font-size: 14px;">username</span>
+          <span id="viewerTime" style="color: #aaa; font-size: 12px;">20 h</span>
+        </div>
+        <div style="display: flex; gap: 15px; align-items: center;">
+          <svg style="width: 24px; height: 24px; fill: #fff; cursor: pointer;" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+          <svg style="width: 24px; height: 24px; fill: #fff; cursor: pointer;" viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+          <svg id="closeStoryViewer" style="width: 26px; height: 26px; fill: #fff; cursor: pointer;" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div style="flex: 1; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;" id="viewerMediaContainer">
+      <!-- Media inserted dynamically -->
+    </div>
+
+    <div style="padding: 12px 15px; display: flex; align-items: center; gap: 15px; background: rgba(0,0,0,0.8);">
+      <input type="text" class="input-field" placeholder="Send message" style="margin-bottom: 0; border-radius: 20px; background: transparent; border: 1px solid rgba(255,255,255,0.4);">
+      <svg style="width: 24px; height: 24px; fill: #fff; cursor: pointer; flex-shrink: 0;" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+      <svg style="width: 24px; height: 24px; fill: #fff; cursor: pointer; flex-shrink: 0;" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
     </div>
   </div>
 
