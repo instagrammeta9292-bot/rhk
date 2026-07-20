@@ -1,5 +1,6 @@
 import { auth, db, doc, setDoc, onAuthStateChanged } from "./firebase-init.js";
 
+// EXACT CLOUD NAME FROM YOUR CLOUDINARY_URL ENVIRONMENT STRING
 const CLOUD_NAME = "nhy9lfkt"; 
 const UPLOAD_PRESET = "rhk_upload";
 
