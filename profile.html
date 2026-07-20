@@ -172,7 +172,6 @@
           followersCount.innerText = data.followers ? data.followers.length : 0;
           followingCount.innerText = data.following ? data.following.length : 0;
 
-          // Load User's Posts
           const postsSnap = await getDocs(collection(db, "posts"));
           let gridHtml = "";
           let count = 0;
