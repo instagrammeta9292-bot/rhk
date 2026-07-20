@@ -3,20 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RHK - Create Post</title>
+  <title>RHK - Upload Media</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
   <div class="page-container">
     <div class="content-box">
-      <div class="rhk-brand-logo" style="margin-bottom: 15px;">New Post</div>
+      <div class="rhk-brand-logo" id="uploadTitle" style="margin-bottom: 15px;">New Upload</div>
       
       <form id="uploadForm">
         <div style="margin-bottom: 15px;">
-          <input type="file" id="mediaInput" accept="image/*" class="input-field" required>
+          <input type="file" id="mediaInput" class="input-field" required>
         </div>
         <textarea id="captionInput" class="input-field" placeholder="Write a caption..." style="resize: none; height: 80px;"></textarea>
-        <button type="submit" id="shareBtn" class="primary-btn">Share Post</button>
+        <button type="submit" id="shareBtn" class="primary-btn">Share Now</button>
       </form>
       <br>
       <a href="home.html" style="color: #0095f6; text-decoration: none; font-size: 14px;">Cancel</a>
@@ -29,10 +29,26 @@
     const CLOUD_NAME = "nhy9Ifkt";
     const UPLOAD_PRESET = "rhk_upload";
 
-    const uploadForm = document.getElementById("uploadForm");
+    const urlParams = new URLSearchParams(window.location.search);
+    const uploadType = urlParams.get("type") || "post"; // 'post', 'story', or 'reel'
+
+    const uploadTitle = document.getElementById("uploadTitle");
     const mediaInput = document.getElementById("mediaInput");
+    const uploadForm = document.getElementById("uploadForm");
     const captionInput = document.getElementById("captionInput");
     const shareBtn = document.getElementById("shareBtn");
+
+    // Enforce file restrictions: Post = Images only; Story & Reel = Images or Videos
+    if (uploadType === 'post') {
+      uploadTitle.innerText = "New Post (Image Only)";
+      mediaInput.accept = "image/*";
+    } else if (uploadType === 'story') {
+      uploadTitle.innerText = "New Story";
+      mediaInput.accept = "image/*,video/*";
+    } else {
+      uploadTitle.innerText = "New Reel";
+      mediaInput.accept = "video/*";
+    }
 
     let currentUser = null;
     let userData = null;
@@ -53,14 +69,17 @@
       if (!file || !userData) return;
 
       shareBtn.disabled = true;
-      shareBtn.innerText = "Uploading to Cloudinary...";
+      shareBtn.innerText = "Uploading via Cloudinary...";
 
       const formData = new FormData();
       formData.append("file", file);
       formData.append("upload_preset", UPLOAD_PRESET);
 
+      // Determine resource type for Cloudinary (auto handles image vs video fast upload)
+      const resourceType = file.type.startsWith('video') ? 'video' : 'image';
+
       try {
-        const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${resourceType}/upload`, {
           method: "POST",
           body: formData
         });
@@ -72,6 +91,7 @@
             username: userData.username,
             userPhoto: userData.photoURL,
             mediaUrl: data.secure_url,
+            mediaType: uploadType,
             caption: captionInput.value.trim(),
             createdAt: new Date().toISOString()
           });
@@ -80,9 +100,9 @@
         }
       } catch (err) {
         console.error("Upload error:", err);
-        alert("Failed to share post.");
+        alert("Failed to share.");
         shareBtn.disabled = false;
-        shareBtn.innerText = "Share Post";
+        shareBtn.innerText = "Share Now";
       }
     });
   </script>
