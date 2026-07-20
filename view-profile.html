@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RHK User Profile</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="page-container" style="justify-content: flex-start; padding-top: 30px;">
+    <div class="content-box" style="max-width: 420px;">
+      <div id="profileHeader" style="display: flex; flex-direction: column; align-items: center;">
+        <div id="pAvatar" style="width: 80px; height: 80px; border-radius: 50%; background-size: cover; background-position: center; background-color: #222; margin-bottom: 12px;"></div>
+        <h3 id="pUsername" style="font-size: 18px; margin-bottom: 4px;"></h3>
+        <p id="pFullName" style="color: #888; font-size: 13px; margin-bottom: 12px;"></p>
+        <p id="pBio" style="font-size: 14px; margin-bottom: 20px; text-align: center;"></p>
+        <button id="followBtn" class="primary-btn" style="margin-bottom: 20px;">Follow</button>
+      </div>
+      <a href="home.html" style="color: #0095f6; text-decoration: none; font-size: 14px;">Back to Feed</a>
+    </div>
+  </div>
+
+  <script type="module">
+    import { auth, db, doc, getDoc, updateDoc, arrayUnion, arrayRemove, onAuthStateChanged } from "./js/firebase-init.js";
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetUid = urlParams.get("uid");
+
+    const pAvatar = document.getElementById("pAvatar");
+    const pUsername = document.getElementById("pUsername");
+    const pFullName = document.getElementById("pFullName");
+    const pBio = document.getElementById("pBio");
+    const followBtn = document.getElementById("followBtn");
+
+    let loggedInUser = null;
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "index.html";
+        return;
+      }
+      loggedInUser = user;
+      loadTargetProfile();
+    });
+
+    async function loadTargetProfile() {
+      const targetSnap = await getDoc(doc(db, "users", targetUid));
+      if (!targetSnap.exists()) {
+        alert("User not found!");
+        window.location.href = "home.html";
+        return;
+      }
+      const targetData = targetSnap.data();
+
+      pAvatar.style.backgroundImage = `url('${targetData.photoURL}')`;
+      pUsername.innerText = `@${targetData.username}`;
+      pFullName.innerText = targetData.fullName;
+      pBio.innerText = targetData.bio || "";
+
+      // Check follow status
+      const mySnap = await getDoc(doc(db, "users", loggedInUser.uid));
+      const myData = mySnap.data();
+      const isFollowing = myData.following && myData.following.includes(targetUid);
+
+      if (isFollowing) {
+        followBtn.innerText = "Following";
+        followBtn.style.backgroundColor = "#262626";
+      } else {
+        followBtn.innerText = "Follow";
+        followBtn.style.backgroundColor = "#0095f6";
+      }
+
+      followBtn.onclick = async () => {
+        const myRef = doc(db, "users", loggedInUser.uid);
+        const targetRef = doc(db, "users", targetUid);
+
+        if (isFollowing) {
+          await updateDoc(myRef, { following: arrayRemove(targetUid) });
+          await updateDoc(targetRef, { followers: arrayRemove(loggedInUser.uid) });
+          followBtn.innerText = "Follow";
+          followBtn.style.backgroundColor = "#0095f6";
+        } else {
+          await updateDoc(myRef, { following: arrayUnion(targetUid) });
+          await updateDoc(targetRef, { followers: arrayUnion(loggedInUser.uid) });
+          followBtn.innerText = "Following";
+          followBtn.style.backgroundColor = "#262626";
+        }
+        location.reload();
+      };
+    }
+  </script>
+</body>
+</html>
+
