@@ -9,6 +9,7 @@ onAuthStateChanged(auth, async (user) => {
     const userSnap = await getDoc(userDocRef);
 
     if (!userSnap.exists()) {
+      // Force user to setup page if profile details aren't filled yet
       window.location.href = "setup.html";
     } else {
       renderFeed(userSnap.data());
@@ -27,7 +28,7 @@ function renderFeed(userData) {
       </div>
       <img class="post-image" src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe" alt="Post">
       <div class="post-footer">
-        <p><strong>${userData.username}</strong> Welcome to your custom RHK application feed! 🚀</p>
+        <p><strong>${userData.username}</strong> Welcome to your brand new RHK stream! 🚀</p>
       </div>
     </div>
   `;
@@ -37,4 +38,3 @@ logoutBtn.addEventListener("click", async () => {
   await signOut(auth);
   window.location.href = "index.html";
 });
-
