@@ -3,19 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RHK - Upload Media</title>
+  <title>RHK - Media Upload</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
   <div class="page-container">
-    <div class="content-box">
+    <div class="content-box" style="max-width: 400px; text-align: center;">
       <div class="rhk-brand-logo" id="uploadTitle" style="margin-bottom: 15px;">New Upload</div>
       
       <form id="uploadForm">
-        <div style="margin-bottom: 15px;">
-          <input type="file" id="mediaInput" class="input-field" required>
+        <!-- Live Preview Box -->
+        <div id="previewContainer" style="width: 100%; height: 240px; background: #1a1a1a; border: 2px dashed #444; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; position: relative; overflow: hidden; cursor: pointer;">
+          <span id="previewPlaceholder" style="color: #888; font-size: 14px;">Tap to select from Gallery</span>
+          <input type="file" id="mediaInput" required style="position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer;">
         </div>
-        <textarea id="captionInput" class="input-field" placeholder="Write a caption..." style="resize: none; height: 80px;"></textarea>
+
+        <textarea id="captionInput" class="input-field" placeholder="Write a caption..." style="resize: none; height: 70px;"></textarea>
         <button type="submit" id="shareBtn" class="primary-btn">Share Now</button>
       </form>
       <br>
@@ -30,17 +33,18 @@
     const UPLOAD_PRESET = "rhk_upload";
 
     const urlParams = new URLSearchParams(window.location.search);
-    const uploadType = urlParams.get("type") || "post"; // 'post', 'story', or 'reel'
+    const uploadType = urlParams.get("type") || "post";
 
     const uploadTitle = document.getElementById("uploadTitle");
     const mediaInput = document.getElementById("mediaInput");
+    const previewContainer = document.getElementById("previewContainer");
+    const previewPlaceholder = document.getElementById("previewPlaceholder");
     const uploadForm = document.getElementById("uploadForm");
     const captionInput = document.getElementById("captionInput");
     const shareBtn = document.getElementById("shareBtn");
 
-    // Enforce file restrictions: Post = Images only; Story & Reel = Images or Videos
     if (uploadType === 'post') {
-      uploadTitle.innerText = "New Post (Image Only)";
+      uploadTitle.innerText = "New Post";
       mediaInput.accept = "image/*";
     } else if (uploadType === 'story') {
       uploadTitle.innerText = "New Story";
@@ -49,6 +53,32 @@
       uploadTitle.innerText = "New Reel";
       mediaInput.accept = "video/*";
     }
+
+    mediaInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const fileURL = URL.createObjectURL(file);
+      previewContainer.innerHTML = '';
+      
+      if (file.type.startsWith('video')) {
+        const video = document.createElement("video");
+        video.src = fileURL;
+        video.controls = true;
+        video.style.width = "100%";
+        video.style.height = "100%";
+        video.style.objectFit = "cover";
+        previewContainer.appendChild(video);
+      } else {
+        const img = document.createElement("img");
+        img.src = fileURL;
+        img.style.width = "100%";
+        img.style.height = "100%";
+        img.style.objectFit = "cover";
+        previewContainer.appendChild(img);
+      }
+      previewContainer.appendChild(mediaInput); // keep input bound
+    });
 
     let currentUser = null;
     let userData = null;
@@ -69,13 +99,12 @@
       if (!file || !userData) return;
 
       shareBtn.disabled = true;
-      shareBtn.innerText = "Uploading via Cloudinary...";
+      shareBtn.innerText = "Uploading... Please wait";
 
       const formData = new FormData();
       formData.append("file", file);
       formData.append("upload_preset", UPLOAD_PRESET);
 
-      // Determine resource type for Cloudinary (auto handles image vs video fast upload)
       const resourceType = file.type.startsWith('video') ? 'video' : 'image';
 
       try {
