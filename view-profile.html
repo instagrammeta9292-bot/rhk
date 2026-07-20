@@ -57,7 +57,6 @@
       pFullName.innerText = targetData.fullName;
       pBio.innerText = targetData.bio || "";
 
-      // Check follow status
       const mySnap = await getDoc(doc(db, "users", loggedInUser.uid));
       const myData = mySnap.data();
       const isFollowing = myData.following && myData.following.includes(targetUid);
@@ -91,4 +90,3 @@
   </script>
 </body>
 </html>
-
