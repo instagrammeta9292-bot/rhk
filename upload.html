@@ -1,6 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>RHK Upload</title><link rel="stylesheet" href="css/style.css"></head>
-<body><h2 style="padding: 20px;">Create Post / Story (Connected)</h2><script type="module" src="js/firebase-init.js"></script></body>
-</html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RHK - Create Post</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="page-container">
+    <div class="content-box">
+      <div class="rhk-brand-logo" style="margin-bottom: 15px;">New Post</div>
+      
+      <form id="uploadForm">
+        <div style="margin-bottom: 15px;">
+          <input type="file" id="mediaInput" accept="image/*" class="input-field" required>
+        </div>
+        <textarea id="captionInput" class="input-field" placeholder="Write a caption..." style="resize: none; height: 80px;"></textarea>
+        <button type="submit" id="shareBtn" class="primary-btn">Share Post</button>
+      </form>
+      <br>
+      <a href="home.html" style="color: #0095f6; text-decoration: none; font-size: 14px;">Cancel</a>
+    </div>
+  </div>
 
+  <script type="module">
+    import { auth, db, doc, getDoc, collection, addDoc, onAuthStateChanged } from "./js/firebase-init.js";
+
+    const CLOUD_NAME = "nhy9Ifkt";
+    const UPLOAD_PRESET = "rhk_upload";
+
+    const uploadForm = document.getElementById("uploadForm");
+    const mediaInput = document.getElementById("mediaInput");
+    const captionInput = document.getElementById("captionInput");
+    const shareBtn = document.getElementById("shareBtn");
+
+    let currentUser = null;
+    let userData = null;
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        currentUser = user;
+        const snap = await getDoc(doc(db, "users", user.uid));
+        if (snap.exists()) userData = snap.data();
+      } else {
+        window.location.href = "index.html";
+      }
+    });
+
+    uploadForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const file = mediaInput.files[0];
+      if (!file || !userData) return;
+
+      shareBtn.disabled = true;
+      shareBtn.innerText = "Uploading to Cloudinary...";
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", UPLOAD_PRESET);
+
+      try {
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
+          method: "POST",
+          body: formData
+        });
+        const data = await res.json();
+
+        if (data.secure_url) {
+          await addDoc(collection(db, "posts"), {
+            userId: currentUser.uid,
+            username: userData.username,
+            userPhoto: userData.photoURL,
+            mediaUrl: data.secure_url,
+            caption: captionInput.value.trim(),
+            createdAt: new Date().toISOString()
+          });
+
+          window.location.href = "home.html";
+        }
+      } catch (err) {
+        console.error("Upload error:", err);
+        alert("Failed to share post.");
+        shareBtn.disabled = false;
+        shareBtn.innerText = "Share Post";
+      }
+    });
+  </script>
+</body>
+</html>
