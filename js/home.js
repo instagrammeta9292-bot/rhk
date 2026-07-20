@@ -3,6 +3,17 @@ import { auth, onAuthStateChanged, db, doc, getDoc, collection, getDocs, query, 
 const feedContainer = document.getElementById("feedContainer");
 const userStoryAvatar = document.getElementById("userStoryAvatar");
 const storiesContainer = document.getElementById("storiesContainer");
+const uploadModal = document.getElementById("uploadModal");
+const openUploadModal = document.getElementById("openUploadModal");
+const navPlusBtn = document.getElementById("navPlusBtn");
+
+if(openUploadModal) openUploadModal.onclick = () => uploadModal.style.display = "flex";
+if(navPlusBtn) navPlusBtn.onclick = (e) => { e.preventDefault(); uploadModal.style.display = "flex"; };
+
+window.closeModal = () => uploadModal.style.display = "none";
+window.selectUploadType = (type) => {
+  window.location.href = `upload.html?type=${type}`;
+};
 
 onAuthStateChanged(auth, async (user) => {
   if (user) {
@@ -22,11 +33,9 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 async function loadFeedAndStories(currentUser) {
-  // Allow users to see their own posts + posts from users they follow
   const visibleUserIds = [currentUser.uid, ...(currentUser.following || [])];
 
   try {
-    // Load Posts
     const postsQuery = query(collection(db, "posts"), orderBy("createdAt", "desc"));
     const postsSnapshot = await getDocs(postsQuery);
     
@@ -34,6 +43,11 @@ async function loadFeedAndStories(currentUser) {
     postsSnapshot.forEach((docSnap) => {
       const post = docSnap.data();
       if (visibleUserIds.includes(post.userId)) {
+        let mediaTag = `<img class="post-image" src="${post.mediaUrl}" alt="Post media">`;
+        if (post.mediaType === 'reel' || post.mediaType === 'story_video') {
+          mediaTag = `<video class="post-video" controls src="${post.mediaUrl}"></video>`;
+        }
+
         postsHTML += `
           <div class="post-card">
             <div class="post-header">
@@ -41,19 +55,14 @@ async function loadFeedAndStories(currentUser) {
                 <div class="post-user-avatar" style="background-image: url('${post.userPhoto}');"></div>
                 <span class="post-username">${post.username}</span>
               </a>
-              <div class="post-options">...</div>
             </div>
             <div class="post-media-container">
-              <img class="post-image" src="${post.mediaUrl}" alt="Post media">
+              ${mediaTag}
             </div>
             <div class="post-actions">
               <div class="post-actions-left">
                 <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
                 <svg viewBox="0 0 24 24"><path d="M21 6h-2v9H6v2c0 .55.45 1 1 1h11l4 4V7c0-.55-.45-1-1-1zm-4 6V3c0-.55-.45-1-1-1H3c-.55 0-1 .45-1 1v14l4-4h10c.55 0 1-.45 1-1z"/></svg>
-                <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-              </div>
-              <div>
-                <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/></svg>
               </div>
             </div>
             <div class="post-footer">
@@ -70,7 +79,7 @@ async function loadFeedAndStories(currentUser) {
       feedContainer.innerHTML = postsHTML;
     }
 
-    // Load Stories Tray for Followed Users
+    // Load Stories Tray
     const usersSnapshot = await getDocs(collection(db, "users"));
     usersSnapshot.forEach((docSnap) => {
       const uData = docSnap.data();
