@@ -3,46 +3,33 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RHK - Login</title>
+  <title>RHK - Sign In</title>
   <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* Keep hidden until auth check determines the user is logged out */
+    .auth-container {
+      display: none;
+    }
+  </style>
 </head>
 <body>
-  <div class="page-container">
-    <div class="content-box" style="max-width: 350px; text-align: center;">
-      <div class="rhk-brand-logo" style="font-size: 36px; margin-bottom: 25px;">RHK</div>
-      
-      <!-- Login Form -->
-      <form id="loginForm">
-        <input type="email" id="email" class="input-field" placeholder="Email" required>
-        <input type="password" id="password" class="input-field" placeholder="Password" required>
-        <button type="submit" class="primary-btn">Log In</button>
-      </form>
-
-      <div style="margin: 20px 0; color: #888; font-size: 14px;">OR</div>
-
-      <!-- Google Sign In Button -->
-      <button id="googleBtn" class="primary-btn" style="background: #4285F4; display: flex; align-items: center; justify-content: center; gap: 10px;">
-        <svg style="width: 18px; height: 18px;" viewBox="0 0 24 24">
-          <path fill="#FFFFFF" d="M21.35 11.1H12v2.8h5.35c-.23 1.25-1.4 3.65-5.35 3.65-3.22 0-5.85-2.67-5.85-5.95s2.63-5.95 5.85-5.95c1.83 0 3.05.78 3.75 1.45l2.15-2.07C16.5 2.58 14.47 1.8 12 1.8 6.48 1.8 2 6.28 2 11.8s4.48 10 10 10c5.78 0 9.62-4.07 9.62-9.82 0-.67-.07-1.18-.27-1.88z"/>
-        </svg>
-        Continue with Google
-      </button>
-
-      <p style="margin-top: 25px; font-size: 14px; color: #aaa;">
-        Don't have an account? <a href="signup.html" style="color: #0095f6; text-decoration: none; font-weight: bold;">Sign up</a>
-      </p>
+  <div class="auth-container" id="authContainer">
+    <div class="auth-box">
+      <div class="rhk-brand-logo" style="font-size: 32px; margin-bottom: 20px;">RHK</div>
+      <p style="margin-bottom: 24px; color: #a8a8a8; font-size: 14px;">Connect & Share with your network</p>
+      <button id="googleLoginBtn" class="google-btn">Continue with Google</button>
     </div>
   </div>
 
   <script type="module">
-    import { auth, db, doc, getDoc, signInWithEmailAndPassword, signInWithPopup, googleProvider, onAuthStateChanged } from "./js/firebase-init.js";
+    import { auth, db, doc, getDoc, onAuthStateChanged } from "./js/firebase-init.js";
 
-    const loginForm = document.getElementById("loginForm");
-    const googleBtn = document.getElementById("googleBtn");
+    const authContainer = document.getElementById("authContainer");
 
-    // Instantly check auth state without blocking the UI
+    // Instantly check authentication state on load
     onAuthStateChanged(auth, async (user) => {
       if (user) {
+        // User is logged in: verify profile setup and go straight to home
         try {
           const userDoc = await getDoc(doc(db, "users", user.uid));
           if (userDoc.exists()) {
@@ -51,49 +38,16 @@
             window.location.replace("setup.html");
           }
         } catch (error) {
-          console.error("Error checking user profile:", error);
+          console.error("Profile check error:", error);
           window.location.replace("home.html");
         }
-      }
-    });
-
-    // Handle standard email/password login
-    loginForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-
-      try {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
-        
-        const userDoc = await getDoc(doc(db, "users", user.uid));
-        if (userDoc.exists()) {
-          window.location.href = "home.html";
-        } else {
-          window.location.href = "setup.html";
-        }
-      } catch (error) {
-        alert("Login failed: " + error.message);
-      }
-    });
-
-    // Handle Google Login popup
-    googleBtn.addEventListener("click", async () => {
-      try {
-        const result = await signInWithPopup(auth, googleProvider);
-        const user = result.user;
-
-        const userDoc = await getDoc(doc(db, "users", user.uid));
-        if (userDoc.exists()) {
-          window.location.href = "home.html";
-        } else {
-          window.location.href = "setup.html";
-        }
-      } catch (error) {
-        alert("Google Sign-In failed: " + error.message);
+      } else {
+        // User is not logged in: display the login card smoothly
+        authContainer.style.display = "flex";
       }
     });
   </script>
+  
+  <script type="module" src="js/auth.js"></script>
 </body>
 </html>
