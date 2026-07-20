@@ -46,12 +46,7 @@ async function loadFeedAndStories(currentUser) {
     let postsHTML = "";
     postsSnapshot.forEach((docSnap) => {
       const post = docSnap.data();
-      if (visibleUserIds.includes(post.userId)) {
-        let mediaTag = `<img class="post-image" src="${post.mediaUrl}" alt="Post media">`;
-        if (post.mediaType === 'reel' || post.mediaType === 'story_video') {
-          mediaTag = `<video class="post-video" controls src="${post.mediaUrl}"></video>`;
-        }
-
+      if (visibleUserIds.includes(post.userId) && post.mediaType === 'post') {
         postsHTML += `
           <div class="post-card">
             <div class="post-header">
@@ -61,7 +56,7 @@ async function loadFeedAndStories(currentUser) {
               </a>
             </div>
             <div class="post-media-container">
-              ${mediaTag}
+              <img class="post-image" src="${post.mediaUrl}" alt="Post media">
             </div>
             <div class="post-actions">
               <div class="post-actions-left">
@@ -70,7 +65,7 @@ async function loadFeedAndStories(currentUser) {
               </div>
             </div>
             <div class="post-footer">
-              <p class="post-caption"><span>${post.username}</span> ${post.caption || ""}</p>
+              <p class="post-caption"><a href="view-profile.html?uid=${post.userId}" style="color: #fff; text-decoration: none;"><span>${post.username}</span></a> ${post.caption || ""}</p>
             </div>
           </div>
         `;
@@ -83,40 +78,54 @@ async function loadFeedAndStories(currentUser) {
       feedContainer.innerHTML = postsHTML;
     }
 
-    // Load Stories Tray
+    // Load Stories Tray (Only active stories within 24 hours)
+    const now = new Date().getTime();
+    const twentyFourHours = 24 * 60 * 60 * 1000;
     const usersSnapshot = await getDocs(collection(db, "users"));
+
     usersSnapshot.forEach((docSnap) => {
       const uData = docSnap.data();
       if (currentUser.following && currentUser.following.includes(uData.uid)) {
-        const storyItem = document.createElement("div");
-        storyItem.className = "story-item";
-        storyItem.onclick = () => {
-          viewerUserAvatar.style.backgroundImage = `url('${uData.photoURL}')`;
-          viewerUsername.innerText = uData.username;
-          
-          let mediaHtml = `<img src="${uData.photoURL}" style="max-width: 100%; max-height: 100%; object-fit: contain;">`;
-          postsSnapshot.forEach((pDoc) => {
-            const pData = pDoc.data();
-            if (pData.userId === uData.uid && (pData.mediaType === 'story' || pData.mediaType === 'story_video')) {
-              if (pData.mediaType === 'story_video') {
-                mediaHtml = `<video autoplay controls src="${pData.mediaUrl}" style="max-width: 100%; max-height: 100%;"></video>`;
-              } else {
-                mediaHtml = `<img src="${pData.mediaUrl}" style="max-width: 100%; max-height: 100%; object-fit: contain;">`;
-              }
+        let hasActiveStory = false;
+        let activeStoryData = null;
+
+        postsSnapshot.forEach((pDoc) => {
+          const pData = pDoc.data();
+          if (pData.userId === uData.uid && (pData.mediaType === 'story' || pData.mediaType === 'story_video')) {
+            const storyTime = new Date(pData.createdAt).getTime();
+            if (now - storyTime < twentyFourHours) {
+              hasActiveStory = true;
+              activeStoryData = pData;
             }
-          });
+          }
+        });
 
-          viewerMediaContainer.innerHTML = mediaHtml;
-          storyViewer.style.display = "flex";
-        };
+        if (hasActiveStory) {
+          const storyItem = document.createElement("div");
+          storyItem.className = "story-item";
+          storyItem.onclick = () => {
+            viewerUserAvatar.style.backgroundImage = `url('${uData.photoURL}')`;
+            viewerUserAvatar.onclick = () => window.location.href = `view-profile.html?uid=${uData.uid}`;
+            viewerUsername.innerText = uData.username;
+            viewerUsername.onclick = () => window.location.href = `view-profile.html?uid=${uData.uid}`;
+            
+            let mediaHtml = `<img src="${activeStoryData.mediaUrl}" style="max-width: 100%; max-height: 100%; object-fit: contain;">`;
+            if (activeStoryData.mediaType === 'story_video') {
+              mediaHtml = `<video autoplay controls src="${activeStoryData.mediaUrl}" style="max-width: 100%; max-height: 100%;"></video>`;
+            }
 
-        storyItem.innerHTML = `
-          <div class="story-ring">
-            <div class="story-img" style="background-image: url('${uData.photoURL}');"></div>
-          </div>
-          <span class="story-username">${uData.username}</span>
-        `;
-        storiesContainer.appendChild(storyItem);
+            viewerMediaContainer.innerHTML = mediaHtml;
+            storyViewer.style.display = "flex";
+          };
+
+          storyItem.innerHTML = `
+            <div class="story-ring">
+              <div class="story-img" style="background-image: url('${uData.photoURL}');"></div>
+            </div>
+            <span class="story-username">${uData.username}</span>
+          `;
+          storiesContainer.appendChild(storyItem);
+        }
       }
     });
 
