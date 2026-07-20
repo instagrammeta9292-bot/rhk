@@ -5,95 +5,206 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>RHK - Profile</title>
   <link rel="stylesheet" href="css/style.css">
-  <style>
-    body { background-color: #000; color: #fff; margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-    .profile-header { padding: 20px 16px; display: flex; align-items: center; gap: 20px; border-bottom: 1px solid #262626; }
-    .profile-avatar { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; background: #333; }
-    .profile-info { flex: 1; }
-    .profile-username { font-size: 18px; font-weight: 600; margin-bottom: 5px; }
-    .profile-bio { font-size: 13px; color: #ccc; margin-top: 5px; }
-    .grid-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 2px; padding-bottom: 60px; }
-    .grid-item { width: 100%; aspect-ratio: 1; background: #111; object-fit: cover; }
-    .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: 50px; background: #000; border-top: 1px solid #262626; display: flex; justify-content: space-around; align-items: center; z-index: 1000; }
-    .bottom-nav a { font-size: 22px; text-decoration: none; color: #fff; }
-  </style>
 </head>
 <body>
+  <div class="page-container" style="padding-bottom: 70px;">
+    <!-- Profile Header Top Bar -->
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid #222; background: #000; position: sticky; top: 0; z-index: 100;">
+      <a href="home.html" style="color: #fff; text-decoration: none; font-size: 20px;">←</a>
+      <span id="profileUsernameHeader" style="font-weight: 600; font-size: 16px;">profile</span>
+      <div style="width: 20px;"></div>
+    </div>
 
-  <div class="profile-header">
-    <img id="userAvatar" src="https://icon-library.com/images/default-profile-icon/default-profile-icon-24.jpg" class="profile-avatar">
-    <div class="profile-info">
-      <div id="usernameDisplay" class="profile-username">loading...</div>
-      <div id="fullNameDisplay" style="font-size: 14px; font-weight: 500;"></div>
-      <div id="bioDisplay" class="profile-bio"></div>
+    <!-- Profile Info Section -->
+    <div style="padding: 20px 16px; max-width: 600px; margin: 0 auto; width: 100%;">
+      <div style="display: flex; align-items: center; gap: 24px; margin-bottom: 15px;">
+        <div id="profileAvatar" style="width: 80px; height: 80px; border-radius: 50%; background-size: cover; background-position: center; background-color: #333;"></div>
+        <div style="display: flex; justify-content: space-around; flex-grow: 1; text-align: center;">
+          <div>
+            <div id="postsCount" style="font-weight: bold; font-size: 16px;">0</div>
+            <div style="font-size: 12px; color: #aaa;">Posts</div>
+          </div>
+          <div>
+            <div id="followersCount" style="font-weight: bold; font-size: 16px;">0</div>
+            <div style="font-size: 12px; color: #aaa;">Followers</div>
+          </div>
+          <div>
+            <div id="followingCount" style="font-weight: bold; font-size: 16px;">0</div>
+            <div style="font-size: 12px; color: #aaa;">Following</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 15px;">
+        <div id="profileFullName" style="font-weight: 600; font-size: 15px;"></div>
+        <div id="profileBio" style="font-size: 14px; color: #ddd; margin-top: 4px; white-space: pre-wrap;"></div>
+      </div>
+
+      <!-- Dynamic Action Buttons (Follow / Message or Edit Profile) -->
+      <div id="actionButtonsContainer" style="display: flex; gap: 8px; margin-bottom: 20px;">
+        <!-- Injected via JS -->
+      </div>
+
+      <!-- User's Posts Grid -->
+      <div style="border-top: 1px solid #222; padding-top: 10px;">
+        <div style="text-align: center; font-size: 12px; letter-spacing: 1px; color: #888; margin-bottom: 10px; font-weight: bold;">POSTS</div>
+        <div id="userPostsGrid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px;">
+          <!-- Posts rendered here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <div class="bottom-nav">
+      <a href="home.html" class="nav-item">🏠</a>
+      <a href="search.html" class="nav-item">🔍</a>
+      <a href="upload.html" class="nav-item">➕</a>
+      <a href="notifications.html" class="nav-item">❤️</a>
+      <a href="profile.html" class="nav-item active" id="myProfileNav">👤</a>
     </div>
   </div>
 
-  <div id="userPostsGrid" class="grid-container">
-    <!-- User posts grid -->
-  </div>
-
-  <!-- Bottom Navigation Bar -->
-  <div class="bottom-nav">
-    <a href="home.html">🏠</a>
-    <a href="explore.html">🔍</a>
-    <a href="upload.html?type=post">➕</a>
-    <a href="profile.html">👤</a>
-  </div>
-
   <script type="module">
-    import { auth, db, doc, getDoc, collection, query, where, getDocs, onAuthStateChanged } from "./js/firebase-init.js";
+    import { auth, db, doc, getDoc, updateDoc, arrayUnion, arrayRemove, collection, query, where, getDocs, addDoc, orderBy } from "./js/firebase-init.js";
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const urlParams = new URLSearchParams(window.location.search);
-    const targetUid = urlParams.get("uid");
+    const targetUserId = urlParams.get("uid");
 
-    const userAvatar = document.getElementById("userAvatar");
-    const usernameDisplay = document.getElementById("usernameDisplay");
-    const fullNameDisplay = document.getElementById("fullNameDisplay");
-    const bioDisplay = document.getElementById("bioDisplay");
+    const profileUsernameHeader = document.getElementById("profileUsernameHeader");
+    const profileAvatar = document.getElementById("profileAvatar");
+    const profileFullName = document.getElementById("profileFullName");
+    const profileBio = document.getElementById("profileBio");
+    const postsCount = document.getElementById("postsCount");
+    const followersCount = document.getElementById("followersCount");
+    const followingCount = document.getElementById("followingCount");
+    const actionButtonsContainer = document.getElementById("actionButtonsContainer");
     const userPostsGrid = document.getElementById("userPostsGrid");
+    const myProfileNav = document.getElementById("myProfileNav");
 
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
+    onAuthStateChanged(auth, async (currentUser) => {
+      if (!currentUser) {
         window.location.href = "index.html";
         return;
       }
-      const profileId = targetUid || user.uid;
-      loadUserProfile(profileId);
-    });
 
-    async function loadUserProfile(uid) {
-      try {
-        const userSnap = await getDoc(doc(db, "users", uid));
-        if (userSnap.exists()) {
-          const data = userSnap.data();
-          usernameDisplay.innerText = data.username || "user";
-          fullNameDisplay.innerText = data.fullName || "";
-          bioDisplay.innerText = data.bio || "";
-          if (data.photoURL) userAvatar.src = data.photoURL;
-        }
+      // Determine whose profile to load (target user from URL or logged-in user)
+      const profileId = targetUserId || currentUser.uid;
+      const isMyProfile = profileId === currentUser.uid;
 
-        // Fetch User Posts
-        const q = query(collection(db, "posts"), where("userId", "==", uid));
-        const postSnaps = await getDocs(q);
-        
-        userPostsGrid.innerHTML = "";
-        if (postSnaps.empty) {
-          userPostsGrid.innerHTML = `<div style="grid-column: span 3; text-align: center; color: #888; padding: 40px;">No posts yet</div>`;
-          return;
-        }
-
-        postSnaps.forEach((docSnap) => {
-          const post = docSnap.data();
-          const media = document.createElement("img");
-          media.src = post.mediaUrl;
-          media.className = "grid-item";
-          userPostsGrid.appendChild(media);
-        });
-      } catch (err) {
-        console.error("Error loading profile:", err);
+      if (isMyProfile) {
+        myProfileNav.style.color = "#0095f6";
       }
-    }
+
+      // Fetch profile data
+      const userSnap = await getDoc(doc(db, "users", profileId));
+      if (!userSnap.exists()) {
+        alert("User not found!");
+        window.location.href = "home.html";
+        return;
+      }
+
+      const userData = userSnap.data();
+      profileUsernameHeader.innerText = userData.username;
+      profileAvatar.style.backgroundImage = `url('${userData.photoURL || "https://icon-library.com/images/default-profile-icon/default-profile-icon-24.jpg"}')`;
+      profileFullName.innerText = userData.fullName || "";
+      profileBio.innerText = userData.bio || "";
+      followersCount.innerText = (userData.followers || []).length;
+      followingCount.innerText = (userData.following || []).length;
+
+      // Handle Action Buttons
+      if (isMyProfile) {
+        actionButtonsContainer.innerHTML = `
+          <a href="edit-profile.html" class="secondary-btn" style="flex: 1; text-align: center; text-decoration: none; padding: 7px; background: #262626; color: #fff; border-radius: 6px; font-weight: 600; font-size: 14px;">Edit Profile</a>
+        `;
+      } else {
+        const isFollowing = (userData.followers || []).includes(currentUser.uid);
+        actionButtonsContainer.innerHTML = `
+          <button id="followBtn" class="${isFollowing ? 'secondary-btn' : 'primary-btn'}" style="flex: 1; padding: 7px; border-radius: 6px; font-weight: 600; font-size: 14px; background: ${isFollowing ? '#262626' : '#0095f6'}; color: #fff; border: none; cursor: pointer;">
+            ${isFollowing ? 'Following' : 'Follow'}
+          </button>
+          <button id="messageBtn" class="secondary-btn" style="flex: 1; padding: 7px; background: #262626; color: #fff; border: none; border-radius: 6px; font-weight: 600; font-size: 14px; cursor: pointer;">
+            Message
+          </button>
+        `;
+
+        // Follow / Unfollow logic
+        document.getElementById("followBtn").addEventListener("click", async () => {
+          const targetRef = doc(db, "users", profileId);
+          const myRef = doc(db, "users", currentUser.uid);
+
+          const currentlyFollowing = document.getElementById("followBtn").innerText === "Following";
+
+          if (currentlyFollowing) {
+            await updateDoc(targetRef, { followers: arrayRemove(currentUser.uid) });
+            await updateDoc(myRef, { following: arrayRemove(profileId) });
+            document.getElementById("followBtn").innerText = "Follow";
+            document.getElementById("followBtn").style.background = "#0095f6";
+            followersCount.innerText = parseInt(followersCount.innerText) - 1;
+          } else {
+            await updateDoc(targetRef, { followers: arrayUnion(currentUser.uid) });
+            await updateDoc(myRef, { following: arrayUnion(profileId) });
+            document.getElementById("followBtn").innerText = "Following";
+            document.getElementById("followBtn").style.background = "#262626";
+            followersCount.innerText = parseInt(followersCount.innerText) + 1;
+          }
+        });
+
+        // Chat / Message redirection logic
+        document.getElementById("messageBtn").addEventListener("click", async () => {
+          // Check if a chat conversation already exists between these two users
+          const chatsRef = collection(db, "chats");
+          const q = query(chatsRef, where("participants", "array-contains", currentUser.uid));
+          const querySnapshot = await getDocs(q);
+
+          let existingChatId = null;
+          querySnapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            if (data.participants && data.participants.includes(profileId)) {
+              existingChatId = docSnap.id;
+            }
+          });
+
+          if (existingChatId) {
+            window.location.href = `chat-room.html?chatId=${existingChatId}`;
+          } else {
+            // Create a new chat session document
+            const newChatRef = await addDoc(chatsRef, {
+              participants: [currentUser.uid, profileId],
+              lastMessage: "",
+              updatedAt: new Date().toISOString()
+            });
+            window.location.href = `chat-room.html?chatId=${newChatRef.id}`;
+          }
+        });
+      }
+
+      // Load User's Posts
+      const postsQuery = query(collection(db, "posts"), where("userId", "==", profileId));
+      const postSnapshots = await getDocs(postsQuery);
+      postsCount.innerText = postSnapshots.size;
+
+      userPostsGrid.innerHTML = "";
+      if (postSnapshots.empty) {
+        userPostsGrid.innerHTML = `<div style="grid-column: span 3; text-align: center; color: #777; padding: 40px; font-size: 14px;">No posts yet</div>`;
+      } else {
+        postSnapshots.forEach((docSnap) => {
+          const post = docSnap.data();
+          const item = document.createElement("div");
+          item.style.aspectRatio = "1/1";
+          item.style.backgroundColor = "#111";
+          item.style.overflow = "hidden";
+          item.style.position = "relative";
+
+          if (post.mediaType === 'reel' || (post.mediaUrl && post.mediaUrl.includes('.mp4'))) {
+            item.innerHTML = `<video src="${post.mediaUrl}" style="width: 100%; height: 100%; object-fit: cover;"></video>`;
+          } else {
+            item.innerHTML = `<img src="${post.mediaUrl}" style="width: 100%; height: 100%; object-fit: cover;">`;
+          }
+          userPostsGrid.appendChild(item);
+        });
+      }
+    });
   </script>
 </body>
 </html>
