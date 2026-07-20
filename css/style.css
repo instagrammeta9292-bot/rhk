@@ -8,7 +8,7 @@
 body {
   background-color: #000;
   color: #fff;
-  padding-bottom: 60px; /* Space for fixed bottom nav */
+  padding-bottom: 60px;
 }
 
 /* Top Navigation Bar */
@@ -142,7 +142,6 @@ body {
   max-height: 500px;
   background-color: #111;
   overflow: hidden;
-  position: relative;
 }
 
 .post-image {
@@ -208,17 +207,18 @@ body {
   fill: #fff;
 }
 
-/* Auth & Setup Containers */
-.auth-container, .setup-container {
+/* Authentication & Setup UI Containers */
+.auth-container, .setup-container, .page-container {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
   padding: 20px;
   background: #000;
+  flex-direction: column;
 }
 
-.auth-box, .setup-box {
+.auth-box, .setup-box, .content-box {
   background: #121212;
   border: 1px solid #262626;
   padding: 30px 20px;
@@ -262,3 +262,14 @@ body {
   cursor: pointer;
 }
 
+.logout-btn {
+  background-color: #ed4956;
+  color: white;
+  border: none;
+  padding: 12px;
+  width: 100%;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 15px;
+}
