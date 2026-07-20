@@ -94,7 +94,6 @@ async function loadFeedAndStories(currentUser) {
           viewerUserAvatar.style.backgroundImage = `url('${uData.photoURL}')`;
           viewerUsername.innerText = uData.username;
           
-          // Find active story or fallback post for this user
           let mediaHtml = `<img src="${uData.photoURL}" style="max-width: 100%; max-height: 100%; object-fit: contain;">`;
           postsSnapshot.forEach((pDoc) => {
             const pData = pDoc.data();
