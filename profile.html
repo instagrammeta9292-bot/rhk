@@ -3,190 +3,141 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RHK Profile</title>
+  <title>RHK - Edit Profile</title>
   <link rel="stylesheet" href="css/style.css">
   <style>
-    .profile-top-bar {
+    .profile-edit-container {
+      max-width: 450px;
+      margin: 20px auto;
+      padding: 20px;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    .avatar-upload-section {
       display: flex;
-      justify-content: space-between;
+      flex-direction: column;
       align-items: center;
-      padding: 10px 15px;
-      border-bottom: 1px solid #262626;
-      font-weight: bold;
-      font-size: 16px;
+      margin-bottom: 24px;
     }
-    .profile-info-section {
-      padding: 15px;
-    }
-    .profile-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .profile-stats {
-      display: flex;
-      gap: 25px;
-      text-align: center;
-    }
-    .stat-num {
-      font-weight: 700;
-      font-size: 16px;
-    }
-    .stat-label {
-      font-size: 12px;
-      color: #aaa;
-    }
-    .profile-actions {
-      display: flex;
-      gap: 8px;
-      margin-top: 15px;
-    }
-    .profile-tabs {
-      display: flex;
-      border-top: 1px solid #262626;
-      border-bottom: 1px solid #262626;
-    }
-    .tab-item {
-      flex: 1;
-      text-align: center;
-      padding: 12px;
-      cursor: pointer;
-      border-bottom: 2px solid transparent;
-    }
-    .tab-item.active {
-      border-bottom-color: #fff;
-    }
-    .user-posts-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 2px;
-    }
-    .grid-thumb {
-      width: 100%;
-      aspect-ratio: 1/1;
+    .profile-avatar-preview {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
       background-size: cover;
       background-position: center;
-      background-color: #1a1a1a;
+      background-color: #262626;
+      border: 2px solid #dbdbdb;
+      margin-bottom: 12px;
+      cursor: pointer;
+      position: relative;
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      color: #aaa;
+      margin-bottom: 6px;
+    }
+    .input-field {
+      width: 100%;
+      padding: 10px 12px;
+      background: #121212;
+      border: 1px solid #333;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 14px;
+    }
+    .input-field:focus {
+      border-color: #0095f6;
+      outline: none;
+    }
+    .save-btn {
+      width: 100%;
+      background-color: #0095f6;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 12px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .save-btn:active {
+      opacity: 0.8;
     }
   </style>
 </head>
 <body>
 
-  <div class="profile-top-bar">
-    <div style="display: flex; align-items: center; gap: 4px;">
-      <span id="topUsernameText">username</span>
-      <svg style="width: 12px; height: 12px; fill: #fff;" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+  <div class="profile-edit-container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <a href="home.html" style="color: #fff; text-decoration: none; font-size: 16px;">Cancel</a>
+      <h3 style="margin: 0; font-size: 16px;">Edit Profile</h3>
+      <div style="width: 40px;"></div>
     </div>
-    <div style="display: flex; gap: 15px; align-items: center;">
-      <svg id="settingsGear" style="width: 24px; height: 24px; fill: #fff; cursor: pointer;" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
-    </div>
-  </div>
 
-  <div class="profile-info-section">
-    <div class="profile-row">
-      <div id="pAvatar" style="width: 80px; height: 80px; border-radius: 50%; background-size: cover; background-position: center; background-color: #222;"></div>
-      <div class="profile-stats">
-        <div>
-          <div class="stat-num" id="postsCount">0</div>
-          <div class="stat-label">posts</div>
-        </div>
-        <div>
-          <div class="stat-num" id="followersCount">0</div>
-          <div class="stat-label">followers</div>
-        </div>
-        <div>
-          <div class="stat-num" id="followingCount">0</div>
-          <div class="stat-label">following</div>
-        </div>
+    <form id="editProfileForm">
+      <!-- Profile Photo Upload / Preview -->
+      <div class="avatar-upload-section">
+        <div id="avatarPreview" class="profile-avatar-preview" title="Click to change photo"></div>
+        <label for="avatarInput" style="color: #0095f6; font-size: 14px; font-weight: 600; cursor: pointer;">
+          Change Profile Photo
+        </label>
+        <input type="file" id="avatarInput" accept="image/*" style="display: none;">
       </div>
-    </div>
-    
-    <div style="margin-top: 12px;">
-      <div id="pFullName" style="font-weight: 600; font-size: 14px;">Full Name</div>
-      <div id="pBio" style="font-size: 13px; color: #ccc; margin-top: 2px;"></div>
-    </div>
 
-    <div class="profile-actions">
-      <button class="secondary-btn" style="background: #262626; font-size: 13px; padding: 7px;" onclick="alert('Profile edit mode')">Edit Profile</button>
-      <button class="secondary-btn" style="background: #262626; font-size: 13px; padding: 7px;" onclick="alert('Archive panel')">View archive</button>
-    </div>
-  </div>
+      <div class="form-group">
+        <label>Name</label>
+        <input type="text" id="fullNameInput" class="input-field" placeholder="Full name">
+      </div>
 
-  <div class="profile-tabs">
-    <div class="tab-item active">
-      <svg style="width: 20px; height: 20px; fill: #fff;" viewBox="0 0 24 24"><path d="M3 3v18h18V3H3zm8 16H5v-6h6v6zm0-8H5V5h6v6zm8 8h-6v-6h6v6zm0-8h-6V5h6v6z"/></svg>
-    </div>
-    <div class="tab-item">
-      <svg style="width: 20px; height: 20px; fill: #888;" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
-    </div>
-    <div class="tab-item">
-      <svg style="width: 20px; height: 20px; fill: #888;" viewBox="0 0 24 24"><path d="M21 6h-2v9H6v2c0 .55.45 1 1 1h11l4 4V7c0-.55-.45-1-1-1zm-4 6V3c0-.55-.45-1-1-1H3c-.55 0-1 .45-1 1v14l4-4h10c.55 0 1-.45 1-1z"/></svg>
-    </div>
-  </div>
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="usernameInput" class="input-field" placeholder="Username">
+      </div>
 
-  <div class="user-posts-grid" id="userPostsGrid">
-    <!-- User posts shown here -->
-  </div>
-  
-  <div id="noPostsPlaceholder" style="text-align: center; padding: 40px;">
-    <div style="width: 60px; height: 60px; border: 2px solid #fff; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin: 0 auto 15px auto;">
-      <svg style="width: 30px; height: 30px; fill: #fff;" viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
-    </div>
-    <div style="font-weight: 700; font-size: 18px; margin-bottom: 5px;">Share photos</div>
-    <div style="color: #888; font-size: 13px; margin-bottom: 15px;">When you share photos, they will appear on your profile.</div>
-    <a href="upload.html?type=post" style="color: #0095f6; text-decoration: none; font-weight: 600; font-size: 14px;">Share your first photo</a>
-  </div>
+      <div class="form-group">
+        <label>Bio</label>
+        <textarea id="bioInput" class="input-field" style="resize: none; height: 70px;" placeholder="Bio"></textarea>
+      </div>
 
-  <!-- Bottom Navigation Bar -->
-  <nav class="bottom-nav">
-    <a href="home.html"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></a>
-    <a href="explore.html"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg></a>
-    <a href="reels.html"><svg viewBox="0 0 24 24"><path d="M18 3H6c-1.66 0-3 1.34-3 3v12c0 1.66 1.34 3 3 3h12c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3zm-9 13.5v-9l7 4.5-7 4.5z"/></svg></a>
-    <a href="home.html" onclick="localStorage.setItem('openUpload', 'true')"><svg viewBox="0 0 24 24"><path d="M19 11h-6V5h-2v6H5v2h6v6h2v-6h6z"/></svg></a>
-    <a href="profile.html"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg></a>
-  </nav>
+      <!-- Explicit Save Button Added Here -->
+      <button type="submit" id="saveBtn" class="save-btn">Save Changes</button>
+    </form>
+  </div>
 
   <script type="module">
-    import { auth, signOut, onAuthStateChanged, db, doc, getDoc, collection, getDocs } from "./js/firebase-init.js";
+    import { auth, db, doc, getDoc, setDoc, onAuthStateChanged } from "./js/firebase-init.js";
 
-    const topUsernameText = document.getElementById("topUsernameText");
-    const pAvatar = document.getElementById("pAvatar");
-    const pFullName = document.getElementById("pFullName");
-    const pBio = document.getElementById("pBio");
-    const postsCount = document.getElementById("postsCount");
-    const followersCount = document.getElementById("followersCount");
-    const followingCount = document.getElementById("followingCount");
-    const userPostsGrid = document.getElementById("userPostsGrid");
-    const noPostsPlaceholder = document.getElementById("noPostsPlaceholder");
-    const settingsGear = document.getElementById("settingsGear");
+    const CLOUD_NAME = "nhy9lfkt";
+    const UPLOAD_PRESET = "rhk_upload";
+
+    const avatarInput = document.getElementById("avatarInput");
+    const avatarPreview = document.getElementById("avatarPreview");
+    const fullNameInput = document.getElementById("fullNameInput");
+    const usernameInput = document.getElementById("usernameInput");
+    const bioInput = document.getElementById("bioInput");
+    const editProfileForm = document.getElementById("editProfileForm");
+    const saveBtn = document.getElementById("saveBtn");
+
+    let currentUser = null;
+    let uploadedImageUrl = "https://icon-library.com/images/default-profile-icon/default-profile-icon-24.jpg";
 
     onAuthStateChanged(auth, async (user) => {
       if (user) {
-        const snap = await getDoc(doc(db, "users", user.uid));
-        if (snap.exists()) {
-          const data = snap.data();
-          topUsernameText.innerText = data.username;
-          pAvatar.style.backgroundImage = `url('${data.photoURL}')`;
-          pFullName.innerText = data.fullName;
-          pBio.innerText = data.bio || "";
-          followersCount.innerText = data.followers ? data.followers.length : 0;
-          followingCount.innerText = data.following ? data.following.length : 0;
-
-          const postsSnap = await getDocs(collection(db, "posts"));
-          let gridHtml = "";
-          let count = 0;
-          postsSnap.forEach((docSnap) => {
-            const p = docSnap.data();
-            if (p.userId === user.uid) {
-              count++;
-              gridHtml += `<div class="grid-thumb" style="background-image: url('${p.mediaUrl}')"></div>`;
-            }
-          });
-
-          postsCount.innerText = count;
-          if (count > 0) {
-            userPostsGrid.innerHTML = gridHtml;
-            noPostsPlaceholder.style.display = "none";
+        currentUser = user;
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists()) {
+          const data = userDoc.data();
+          fullNameInput.value = data.fullName || "";
+          usernameInput.value = data.username || "";
+          bioInput.value = data.bio || "";
+          if (data.photoURL) {
+            uploadedImageUrl = data.photoURL;
+            avatarPreview.style.backgroundImage = `url('${uploadedImageUrl}')`;
           }
         }
       } else {
@@ -194,12 +145,72 @@
       }
     });
 
-    settingsGear.onclick = async () => {
-      if(confirm("Log out of RHK?")) {
-        await signOut(auth);
-        window.location.href = "index.html";
+    // Make avatar preview clickable as well as the text label
+    avatarPreview.addEventListener("click", () => {
+      avatarInput.click();
+    });
+
+    avatarInput.addEventListener("change", async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      // Show local preview immediately
+      avatarPreview.style.backgroundImage = `url('${URL.createObjectURL(file)}')`;
+      saveBtn.disabled = true;
+      saveBtn.innerText = "Uploading Photo...";
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", UPLOAD_PRESET);
+
+      try {
+        const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
+          method: "POST",
+          body: formData
+        });
+        const data = await response.json();
+
+        if (data.secure_url) {
+          uploadedImageUrl = data.secure_url;
+          saveBtn.disabled = false;
+          saveBtn.innerText = "Save Changes";
+        } else {
+          alert("Image upload failed: " + (data.error?.message || "Unknown error"));
+          saveBtn.disabled = false;
+          saveBtn.innerText = "Save Changes";
+        }
+      } catch (err) {
+        console.error("Cloudinary error:", err);
+        alert("Network error while uploading photo.");
+        saveBtn.disabled = false;
+        saveBtn.innerText = "Save Changes";
       }
-    };
+    });
+
+    editProfileForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!currentUser) return;
+
+      saveBtn.disabled = true;
+      saveBtn.innerText =andinavian || "Saving..."; // Saving text fallback
+
+      try {
+        await setDoc(doc(db, "users", currentUser.uid), {
+          uid: currentUser.uid,
+          fullName: fullNameInput.value.trim(),
+          username: usernameInput.value.trim().toLowerCase(),
+          bio: bioInput.value.trim(),
+          photoURL: uploadedImageUrl
+        }, { merge: true });
+
+        window.location.href = "home.html";
+      } catch (err) {
+        console.error("Firestore error:", err);
+        alert("Failed to save profile changes.");
+        saveBtn.disabled = false;
+        saveBtn.innerText = "Save Changes";
+      }
+    });
   </script>
 </body>
 </html>
