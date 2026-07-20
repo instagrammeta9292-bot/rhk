@@ -21,4 +21,3 @@ export {
   db, doc, setDoc, getDoc, getDocs, updateDoc, arrayUnion, arrayRemove, 
   collection, addDoc, query, orderBy, onSnapshot 
 };
-
