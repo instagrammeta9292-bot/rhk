@@ -2,7 +2,6 @@ import { auth, googleProvider, signInWithPopup, db, doc, getDoc, onAuthStateChan
 
 const googleLoginBtn = document.getElementById("googleLoginBtn");
 
-// If already logged in, redirect directly to feed
 onAuthStateChanged(auth, async (user) => {
   if (user) {
     const userSnap = await getDoc(doc(db, "users", user.uid));
