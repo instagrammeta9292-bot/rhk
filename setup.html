@@ -9,27 +9,24 @@
 <body>
   <div class="setup-container">
     <div class="setup-box">
-      <div class="rhk-logo">RHK</div>
-      <p style="margin-bottom: 20px; font-size: 14px; color: #8e8e8e;">Set up your profile to continue</p>
+      <div class="rhk-brand-logo" style="font-size: 28px; margin-bottom: 15px;">RHK</div>
+      <p style="margin-bottom: 20px; font-size: 14px; color: #a8a8a8;">Set up your profile details</p>
       
       <form id="setupForm">
-        <div class="avatar-upload-container">
-          <div id="avatarPreview" class="avatar-preview"></div>
-          <label for="avatarInput" style="color: #0095f6; font-size: 14px; font-weight: 600; cursor: pointer;">
-            Add Profile Photo
-          </label>
+        <div style="margin-bottom: 20px; display: flex; flex-direction: column; align-items: center;">
+          <div id="avatarPreview" style="width: 80px; height: 80px; border-radius: 50%; background-size: cover; background-position: center; background-color: #222; border: 2px solid #555; margin-bottom: 10px;"></div>
+          <label for="avatarInput" style="color: #0095f6; font-size: 14px; font-weight: 600; cursor: pointer;">Upload Profile Photo</label>
           <input type="file" id="avatarInput" accept="image/*" style="display: none;">
         </div>
 
         <input type="text" id="usernameInput" class="input-field" placeholder="Username" required>
         <input type="text" id="fullNameInput" class="input-field" placeholder="Full Name" required>
-        <textarea id="bioInput" class="input-field" placeholder="Bio..." style="resize: none; height: 65px;"></textarea>
+        <textarea id="bioInput" class="input-field" placeholder="Bio..." style="resize: none; height: 60px;"></textarea>
         
         <button type="submit" id="submitBtn" class="primary-btn">Start Using RHK</button>
       </form>
     </div>
   </div>
-
   <script type="module" src="js/setup.js"></script>
 </body>
 </html>
