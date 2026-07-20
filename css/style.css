@@ -115,6 +115,8 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
+  text-decoration: none;
+  color: #fff;
 }
 
 .post-user-avatar {
@@ -128,13 +130,6 @@ body {
 .post-username {
   font-size: 14px;
   font-weight: 600;
-}
-
-.post-options {
-  font-weight: bold;
-  letter-spacing: 2px;
-  color: #fff;
-  cursor: pointer;
 }
 
 .post-media-container {
@@ -207,7 +202,7 @@ body {
   fill: #fff;
 }
 
-/* Authentication & Setup UI Containers */
+/* Containers & Buttons */
 .auth-container, .setup-container, .page-container {
   display: flex;
   justify-content: center;
@@ -262,6 +257,16 @@ body {
   cursor: pointer;
 }
 
+.secondary-btn {
+  background-color: #262626;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
 .logout-btn {
   background-color: #ed4956;
   color: white;
@@ -272,4 +277,15 @@ body {
   font-weight: 600;
   cursor: pointer;
   margin-top: 15px;
+}
+
+/* Search & Profile Listings */
+.user-search-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 15px;
+  border-bottom: 1px solid #1a1a1a;
+  text-decoration: none;
+  color: #fff;
 }
