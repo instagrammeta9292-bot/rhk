@@ -14,7 +14,7 @@ let uploadedImageUrl = "https://icon-library.com/images/default-profile-icon/def
 onAuthStateChanged(auth, (user) => {
   if (user) {
     currentUser = user;
-    if(user.photoURL) {
+    if (user.photoURL) {
       uploadedImageUrl = user.photoURL;
       avatarPreview.style.backgroundImage = `url('${uploadedImageUrl}')`;
     }
@@ -23,13 +23,15 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
+// Cloudinary Image Upload Handler
 avatarInput.addEventListener("change", async (e) => {
   const file = e.target.files[0];
   if (!file) return;
 
   avatarPreview.style.backgroundImage = `url('${URL.createObjectURL(file)}')`;
+  
   submitBtn.disabled = true;
-  submitBtn.innerText = "Uploading to Cloudinary...";
+  submitBtn.innerText = "Uploading photo...";
 
   const formData = new FormData();
   formData.append("file", file);
@@ -44,18 +46,19 @@ avatarInput.addEventListener("change", async (e) => {
     if (data.secure_url) {
       uploadedImageUrl = data.secure_url;
       submitBtn.disabled = false;
-      submitBtn.innerText = "Save and Continue";
+      submitBtn.innerText = "Start Using RHK";
     } else {
       throw new Error("Cloudinary upload error");
     }
   } catch (error) {
     console.error("Upload error:", error);
-    alert("Image upload failed.");
+    alert("Image upload failed. Please try a smaller image.");
     submitBtn.disabled = false;
-    submitBtn.innerText = "Save and Continue";
+    submitBtn.innerText = "Start Using RHK";
   }
 });
 
+// Save Profile to Firestore & Head to Home
 setupForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   if (!currentUser) return;
@@ -67,17 +70,17 @@ setupForm.addEventListener("submit", async (e) => {
   try {
     await setDoc(doc(db, "users", currentUser.uid), {
       uid: currentUser.uid,
-      username,
-      fullName,
-      bio,
+      username: username,
+      fullName: fullName,
+      bio: bio,
       photoURL: uploadedImageUrl,
       createdAt: new Date().toISOString()
     });
 
     window.location.href = "home.html";
   } catch (error) {
-    console.error("Firestore saving error:", error);
-    alert("Failed to save data.");
+    console.error("Firestore Error:", error);
+    alert("Failed to save profile details.");
   }
 });
 
