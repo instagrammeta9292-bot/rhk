@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { initializeAuth, getAuth, browserLocalPersistence, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc, getDocs, updateDoc, arrayUnion, arrayRemove, collection, addDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -12,12 +12,23 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+
+// Initialize Auth with explicit local persistence fallback for WebViews
+let auth;
+try {
+  auth = initializeAuth(app, {
+    persistence: browserLocalPersistence
+  });
+} catch (e) {
+  auth = getAuth(app);
+}
+
 const db = getFirestore(app);
-const googleProvider = new GoogleAuthProvider();
 
 export { 
-  auth, googleProvider, signInWithPopup, signOut, onAuthStateChanged, 
+  auth, signOut, onAuthStateChanged, 
+  signInWithEmailAndPassword, createUserWithEmailAndPassword,
   db, doc, setDoc, getDoc, getDocs, updateDoc, arrayUnion, arrayRemove, 
   collection, addDoc, query, orderBy, onSnapshot 
 };
+
