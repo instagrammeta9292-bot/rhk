@@ -12,12 +12,7 @@
   <header class="top-nav">
     <div class="rhk-brand-logo">RHK</div>
     <div class="top-icons">
-      <a href="upload.html">
-        <svg viewBox="0 0 24 24"><path d="M19 11h-6V5h-2v6H5v2h6v6h2v-6h6z"/></svg>
-      </a>
-      <a href="notifications.html">
-        <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-      </a>
+      <svg id="openUploadModal" viewBox="0 0 24 24"><path d="M19 11h-6V5h-2v6H5v2h6v6h2v-6h6z"/></svg>
       <a href="direct.html">
         <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
       </a>
@@ -26,7 +21,7 @@
 
   <!-- Stories Tray -->
   <div class="stories-container" id="storiesContainer">
-    <div class="story-item" onclick="window.location.href='upload.html'">
+    <div class="story-item" onclick="openUploadForType('story')">
       <div style="position: relative;">
         <div class="story-ring" style="background: #333;">
           <div class="story-img" id="userStoryAvatar" style="background-image: url('');"></div>
@@ -42,6 +37,17 @@
     <p style="text-align: center; padding: 40px; color: #888;">Loading feed...</p>
   </main>
 
+  <!-- Upload Action Modal (Post = Image Only | Story & Reels = Image & Video) -->
+  <div class="modal-overlay" id="uploadModal">
+    <div class="modal-sheet">
+      <div style="text-align: center; font-weight: 700; margin-bottom: 5px; color: #fff;">Create New</div>
+      <div class="modal-option" onclick="selectUploadType('post')">Post (Image Only)</div>
+      <div class="modal-option" onclick="selectUploadType('story')">Story (Photo & Video)</div>
+      <div class="modal-option" onclick="selectUploadType('reel')">Reel (Photo & Video)</div>
+      <div class="modal-option" style="background: #333; margin-top: 5px;" onclick="closeModal()">Cancel</div>
+    </div>
+  </div>
+
   <!-- Bottom Navigation Bar -->
   <nav class="bottom-nav">
     <a href="home.html">
@@ -53,7 +59,7 @@
     <a href="reels.html">
       <svg viewBox="0 0 24 24"><path d="M18 3H6c-1.66 0-3 1.34-3 3v12c0 1.66 1.34 3 3 3h12c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3zm-9 13.5v-9l7 4.5-7 4.5z"/></svg>
     </a>
-    <a href="upload.html">
+    <a href="#" id="navPlusBtn">
       <svg viewBox="0 0 24 24"><path d="M19 11h-6V5h-2v6H5v2h6v6h2v-6h6z"/></svg>
     </a>
     <a href="profile.html">
