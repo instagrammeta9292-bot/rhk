@@ -6,7 +6,6 @@
   <title>RHK - Sign In</title>
   <link rel="stylesheet" href="css/style.css">
   <style>
-    /* Splash Screen Style */
     #splashScreen {
       position: fixed;
       top: 0;
@@ -21,8 +20,6 @@
       z-index: 9999;
       transition: opacity 0.3s ease;
     }
-    
-    /* Hide auth container initially */
     .auth-container {
       display: none;
     }
@@ -30,7 +27,6 @@
 </head>
 <body>
 
-  <!-- RHK Brand Splash Screen -->
   <div id="splashScreen">
     <div class="rhk-brand-logo" style="font-size: 42px; margin-bottom: 12px; color: #fff;">RHK</div>
     <p style="color: #888; font-size: 14px; font-family: sans-serif; letter-spacing: 1px;">Loading Experience...</p>
@@ -50,10 +46,8 @@
     const splashScreen = document.getElementById("splashScreen");
     const authContainer = document.getElementById("authContainer");
 
-    // Instantly check authentication state on load
     onAuthStateChanged(auth, async (user) => {
       if (user) {
-        // User is logged in: verify profile setup and go straight to home
         try {
           const userDoc = await getDoc(doc(db, "users", user.uid));
           if (userDoc.exists()) {
@@ -66,7 +60,6 @@
           window.location.replace("home.html");
         }
       } else {
-        // User is not logged in: hide splash screen and display the login card smoothly
         splashScreen.style.display = "none";
         authContainer.style.display = "flex";
       }
