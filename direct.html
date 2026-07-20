@@ -108,8 +108,8 @@
     <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; border-bottom: 1px solid #262626;">
       <div style="display: flex; align-items: center; gap: 12px;">
         <svg id="closeChatBtn" style="width: 24px; height: 24px; fill: #fff; cursor: pointer;" viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
-        <div id="chatUserAvatar" style="width: 36px; height: 36px; border-radius: 50%; background-size: cover; background-position: center; background-color: #333;"></div>
-        <span id="chatUsernameTitle" style="font-weight: 600; font-size: 16px;"></span>
+        <div id="chatUserAvatar" style="width: 36px; height: 36px; border-radius: 50%; background-size: cover; background-position: center; background-color: #333; cursor: pointer;"></div>
+        <span id="chatUsernameTitle" style="font-weight: 600; font-size: 16px; cursor: pointer;"></span>
       </div>
     </div>
     
@@ -169,15 +169,14 @@
 
               msgsHtml += `
                 <div class="msg-row" data-uid="${other.uid}" data-username="${other.username}" data-photo="${other.photoURL}">
-                  <div style="display: flex; align-items: center; gap: 12px;" onclick="window.location.href='view-profile.html?uid=${other.uid}'">
+                  <div style="display: flex; align-items: center; gap: 12px; flex: 1;" class="open-chat-trigger" data-uid="${other.uid}" data-username="${other.username}" data-photo="${other.photoURL}">
                     <div style="width: 50px; height: 50px; border-radius: 50%; background-image: url('${other.photoURL}'); background-size: cover; background-position: center;"></div>
                     <div>
                       <div style="font-weight: 600; font-size: 14px;">${other.username}</div>
                       <div style="color: #888; font-size: 12px; margin-top: 2px;">Active recently</div>
                     </div>
                   </div>
-                  <div class="open-chat-trigger" style="flex: 1; height: 100%; cursor: pointer;" data-uid="${other.uid}" data-username="${other.username}" data-photo="${other.photoURL}"></div>
-                  <svg style="width: 20px; height: 20px; fill: #888;" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                  <svg class="open-chat-trigger" style="width: 20px; height: 20px; fill: #888; cursor: pointer;" viewBox="0 0 24 24" data-uid="${other.uid}" data-username="${other.username}" data-photo="${other.photoURL}"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
                 </div>
               `;
             }
@@ -187,7 +186,10 @@
           messagesList.innerHTML = msgsHtml || `<p style="padding: 20px; color: #888; text-align: center;">No messages yet.</p>`;
 
           document.querySelectorAll('.open-chat-trigger').forEach(el => {
-            el.onclick = () => openChat(el.dataset.uid, el.dataset.username, el.dataset.photo);
+            el.onclick = (e) => {
+              e.stopPropagation();
+              openChat(el.dataset.uid, el.dataset.username, el.dataset.photo);
+            };
           });
         }
       } else {
