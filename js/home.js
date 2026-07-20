@@ -7,13 +7,17 @@ const uploadModal = document.getElementById("uploadModal");
 const openUploadModal = document.getElementById("openUploadModal");
 const navPlusBtn = document.getElementById("navPlusBtn");
 
+const storyViewer = document.getElementById("storyViewer");
+const closeStoryViewer = document.getElementById("closeStoryViewer");
+const viewerUserAvatar = document.getElementById("viewerUserAvatar");
+const viewerUsername = document.getElementById("viewerUsername");
+const viewerMediaContainer = document.getElementById("viewerMediaContainer");
+
 if(openUploadModal) openUploadModal.onclick = () => uploadModal.style.display = "flex";
 if(navPlusBtn) navPlusBtn.onclick = (e) => { e.preventDefault(); uploadModal.style.display = "flex"; };
 
 window.closeModal = () => uploadModal.style.display = "none";
-window.selectUploadType = (type) => {
-  window.location.href = `upload.html?type=${type}`;
-};
+if(closeStoryViewer) closeStoryViewer.onclick = () => storyViewer.style.display = "none";
 
 onAuthStateChanged(auth, async (user) => {
   if (user) {
@@ -86,7 +90,27 @@ async function loadFeedAndStories(currentUser) {
       if (currentUser.following && currentUser.following.includes(uData.uid)) {
         const storyItem = document.createElement("div");
         storyItem.className = "story-item";
-        storyItem.onclick = () => window.location.href = `view-profile.html?uid=${uData.uid}`;
+        storyItem.onclick = () => {
+          viewerUserAvatar.style.backgroundImage = `url('${uData.photoURL}')`;
+          viewerUsername.innerText = uData.username;
+          
+          // Find active story or fallback post for this user
+          let mediaHtml = `<img src="${uData.photoURL}" style="max-width: 100%; max-height: 100%; object-fit: contain;">`;
+          postsSnapshot.forEach((pDoc) => {
+            const pData = pDoc.data();
+            if (pData.userId === uData.uid && (pData.mediaType === 'story' || pData.mediaType === 'story_video')) {
+              if (pData.mediaType === 'story_video') {
+                mediaHtml = `<video autoplay controls src="${pData.mediaUrl}" style="max-width: 100%; max-height: 100%;"></video>`;
+              } else {
+                mediaHtml = `<img src="${pData.mediaUrl}" style="max-width: 100%; max-height: 100%; object-fit: contain;">`;
+              }
+            }
+          });
+
+          viewerMediaContainer.innerHTML = mediaHtml;
+          storyViewer.style.display = "flex";
+        };
+
         storyItem.innerHTML = `
           <div class="story-ring">
             <div class="story-img" style="background-image: url('${uData.photoURL}');"></div>
