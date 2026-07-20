@@ -6,39 +6,226 @@
 }
 
 body {
-  background-color: #fafafa;
-  color: #262626;
-  overflow-x: hidden;
+  background-color: #000;
+  color: #fff;
+  padding-bottom: 60px; /* Space for fixed bottom nav */
 }
 
-/* Responsive Containers for Phones */
+/* Top Navigation Bar */
+.top-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  background-color: #000;
+  border-bottom: 1px solid #262626;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.rhk-brand-logo {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.top-icons {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.top-icons a svg {
+  width: 24px;
+  height: 24px;
+  fill: #fff;
+}
+
+/* Stories Tray */
+.stories-container {
+  display: flex;
+  gap: 15px;
+  padding: 10px 15px;
+  overflow-x: auto;
+  border-bottom: 1px solid #262626;
+  background-color: #000;
+}
+
+.stories-container::-webkit-scrollbar {
+  display: none;
+}
+
+.story-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.story-ring {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.story-img {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 2px solid #000;
+  background-size: cover;
+  background-position: center;
+  background-color: #333;
+}
+
+.story-username {
+  font-size: 11px;
+  color: #dbdbdb;
+  max-width: 72px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Post Card Layout */
+.post-card {
+  background-color: #000;
+  border-bottom: 1px solid #262626;
+  margin-bottom: 10px;
+}
+
+.post-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+}
+
+.post-user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.post-user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+}
+
+.post-username {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.post-options {
+  font-weight: bold;
+  letter-spacing: 2px;
+  color: #fff;
+  cursor: pointer;
+}
+
+.post-media-container {
+  width: 100%;
+  max-height: 500px;
+  background-color: #111;
+  overflow: hidden;
+  position: relative;
+}
+
+.post-image {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+.post-actions {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 15px;
+}
+
+.post-actions-left {
+  display: flex;
+  gap: 15px;
+}
+
+.post-actions svg {
+  width: 24px;
+  height: 24px;
+  fill: #fff;
+  cursor: pointer;
+}
+
+.post-footer {
+  padding: 0 15px 12px 15px;
+  font-size: 14px;
+}
+
+.post-caption span {
+  font-weight: 600;
+  margin-right: 6px;
+}
+
+/* Bottom Navigation Bar */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 55px;
+  background-color: #000;
+  border-top: 1px solid #262626;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 1000;
+}
+
+.bottom-nav a {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+.bottom-nav svg {
+  width: 24px;
+  height: 24px;
+  fill: #fff;
+}
+
+/* Auth & Setup Containers */
 .auth-container, .setup-container {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
   padding: 20px;
-  background: #f0f2f5;
+  background: #000;
 }
 
 .auth-box, .setup-box {
-  background: #ffffff;
+  background: #121212;
+  border: 1px solid #262626;
   padding: 30px 20px;
   border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
   width: 100%;
   max-width: 380px;
   text-align: center;
-}
-
-.rhk-logo {
-  font-size: 28px;
-  font-weight: 800;
-  letter-spacing: 2px;
-  background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin-bottom: 20px;
 }
 
 .google-btn {
@@ -51,32 +238,17 @@ body {
   cursor: pointer;
   width: 100%;
   font-weight: 600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.google-btn:active {
-  background-color: #357ae8;
-}
-
-/* Form Inputs */
 .input-field {
   width: 100%;
   padding: 12px;
   margin-bottom: 14px;
-  border: 1px solid #dbdbdb;
+  border: 1px solid #333;
   border-radius: 6px;
-  background: #fafafa;
+  background: #1a1a1a;
+  color: #fff;
   font-size: 14px;
-}
-
-.input-field:focus {
-  outline: none;
-  border-color: #a8a8a8;
-  background: #fff;
 }
 
 .primary-btn {
@@ -88,153 +260,5 @@ body {
   border-radius: 6px;
   font-weight: 600;
   cursor: pointer;
-  font-size: 15px;
 }
 
-.primary-btn:active {
-  background-color: #1877f2;
-}
-
-/* Avatar Setup UI */
-.avatar-upload-container {
-  margin-bottom: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.avatar-preview {
-  width: 84px;
-  height: 84px;
-  border-radius: 50%;
-  background-color: #efefef;
-  background-size: cover;
-  background-position: center;
-  margin-bottom: 10px;
-  border: 2px solid #dbdbdb;
-}
-
-/* Instagram-style Layout Responsive for Mobile & Desktop */
-.home-layout {
-  display: flex;
-  max-width: 935px;
-  margin: 0 auto;
-  width: 100%;
-}
-
-.sidebar {
-  width: 220px;
-  height: 100vh;
-  position: fixed;
-  border-right: 1px solid #dbdbdb;
-  padding: 20px 10px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  background: #fff;
-  z-index: 10;
-}
-
-.nav-links {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.nav-links li a {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 12px;
-  text-decoration: none;
-  color: #262626;
-  font-size: 15px;
-  border-radius: 8px;
-}
-
-.nav-links li a:hover {
-  background-color: #fafafa;
-}
-
-.main-feed {
-  margin-left: 220px;
-  width: calc(100% - 220px);
-  display: flex;
-  justify-content: center;
-  padding: 20px 10px;
-}
-
-.feed-container {
-  width: 100%;
-  max-width: 470px;
-}
-
-.post-card {
-  background: #fff;
-  border: 1px solid #dbdbdb;
-  border-radius: 8px;
-  margin-bottom: 20px;
-}
-
-.post-header {
-  display: flex;
-  align-items: center;
-  padding: 12px;
-  gap: 10px;
-}
-
-.post-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background-size: cover;
-}
-
-.post-username {
-  font-weight: 600;
-  font-size: 14px;
-}
-
-.post-image {
-  width: 100%;
-  max-height: 500px;
-  object-fit: cover;
-}
-
-.post-footer {
-  padding: 12px;
-  font-size: 14px;
-}
-
-/* Media Query for Mobile Phones (Screens under 768px) */
-@media (max-width: 768px) {
-  .sidebar {
-    width: 100%;
-    height: 60px;
-    position: fixed;
-    bottom: 0;
-    top: auto;
-    border-right: none;
-    border-top: 1px solid #dbdbdb;
-    flex-direction: row;
-    padding: 10px 20px;
-    align-items: center;
-  }
-  
-  .sidebar .rhk-logo {
-    display: none; /* Hide brand name in bottom nav on tiny screens to save space */
-  }
-
-  .nav-links {
-    flex-direction: row;
-    width: 100%;
-    justify-content: space-around;
-  }
-
-  .main-feed {
-    margin-left: 0;
-    width: 100%;
-    padding-bottom: 80px; /* Leave space for bottom navbar */
-  }
-}
