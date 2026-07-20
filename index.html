@@ -6,7 +6,6 @@
   <title>RHK - Login</title>
   <link rel="stylesheet" href="css/style.css">
   <style>
-    /* Center a smooth loading state while Firebase checks authentication */
     #loadingScreen {
       position: fixed;
       top: 0;
@@ -34,7 +33,6 @@
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
-    /* Hidden by default until auth check finishes */
     #authContainer {
       display: none; 
     }
@@ -42,7 +40,6 @@
 </head>
 <body>
 
-  <!-- Loading Screen to prevent blank black gaps -->
   <div id="loadingScreen">
     <div class="spinner"></div>
     <div style="font-size: 14px; color: #888;">Loading RHK...</div>
@@ -52,7 +49,6 @@
     <div class="content-box" style="max-width: 350px; text-align: center;">
       <div class="rhk-brand-logo" style="font-size: 36px; margin-bottom: 25px;">RHK</div>
       
-      <!-- Login Form -->
       <form id="loginForm">
         <input type="email" id="email" class="input-field" placeholder="Email" required>
         <input type="password" id="password" class="input-field" placeholder="Password" required>
@@ -61,7 +57,6 @@
 
       <div style="margin: 20px 0; color: #888; font-size: 14px;">OR</div>
 
-      <!-- Google Sign In Button -->
       <button id="googleBtn" class="primary-btn" style="background: #4285F4; display: flex; align-items: center; justify-content: center; gap: 10px;">
         <svg style="width: 18px; height: 18px;" viewBox="0 0 24 24">
           <path fill="#FFFFFF" d="M21.35 11.1H12v2.8h5.35c-.23 1.25-1.4 3.65-5.35 3.65-3.22 0-5.85-2.67-5.85-5.95s2.63-5.95 5.85-5.95c1.83 0 3.05.78 3.75 1.45l2.15-2.07C16.5 2.58 14.47 1.8 12 1.8 6.48 1.8 2 6.28 2 11.8s4.48 10 10 10c5.78 0 9.62-4.07 9.62-9.82 0-.67-.07-1.18-.27-1.88z"/>
@@ -83,10 +78,24 @@
     const loginForm = document.getElementById("loginForm");
     const googleBtn = document.getElementById("googleBtn");
 
-    // Check auth state immediately upon loading
+    let authChecked = false;
+
+    function showLoginUI() {
+      if (authChecked) return;
+      authChecked = true;
+      loadingScreen.style.display = "none";
+      authContainer.style.display = "flex";
+    }
+
+    // Safety fallback: If Firebase takes longer than 1.5 seconds, force show login screen
+    setTimeout(() => {
+      showLoginUI();
+    }, 1500);
+
     onAuthStateChanged(auth, async (user) => {
       if (user) {
-        // User is logged in, redirect right away without showing login form
+        if (authChecked) return;
+        authChecked = true;
         try {
           const userDoc = await getDoc(doc(db, "users", user.uid));
           if (userDoc.exists()) {
@@ -99,13 +108,10 @@
           window.location.replace("home.html");
         }
       } else {
-        // User is not logged in: hide loading screen and show the login elements smoothly
-        loadingScreen.style.display = "none";
-        authContainer.style.display = "flex";
+        showLoginUI();
       }
     });
 
-    // Handle standard email/password login
     loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const email = document.getElementById("email").value;
@@ -126,7 +132,6 @@
       }
     });
 
-    // Handle Google Login popup
     googleBtn.addEventListener("click", async () => {
       try {
         const result = await signInWithPopup(auth, googleProvider);
