@@ -121,7 +121,6 @@
         const data = await res.json();
 
         if (data.secure_url) {
-          // If video uploaded via story, tag it properly as story_video
           let finalMediaType = uploadType;
           if (uploadType === 'story' && resourceType === 'video') {
             finalMediaType = 'story_video';
