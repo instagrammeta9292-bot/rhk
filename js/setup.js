@@ -23,15 +23,13 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
-// Cloudinary Image Upload Handler
 avatarInput.addEventListener("change", async (e) => {
   const file = e.target.files[0];
   if (!file) return;
 
   avatarPreview.style.backgroundImage = `url('${URL.createObjectURL(file)}')`;
-  
   submitBtn.disabled = true;
-  submitBtn.innerText = "Uploading photo...";
+  submitBtn.innerText = "Uploading to Cloudinary...";
 
   const formData = new FormData();
   formData.append("file", file);
@@ -47,18 +45,15 @@ avatarInput.addEventListener("change", async (e) => {
       uploadedImageUrl = data.secure_url;
       submitBtn.disabled = false;
       submitBtn.innerText = "Start Using RHK";
-    } else {
-      throw new Error("Cloudinary upload error");
     }
   } catch (error) {
-    console.error("Upload error:", error);
-    alert("Image upload failed. Please try a smaller image.");
+    console.error("Cloudinary error:", error);
+    alert("Image upload failed.");
     submitBtn.disabled = false;
     submitBtn.innerText = "Start Using RHK";
   }
 });
 
-// Save Profile to Firestore & Head to Home
 setupForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   if (!currentUser) return;
@@ -70,16 +65,16 @@ setupForm.addEventListener("submit", async (e) => {
   try {
     await setDoc(doc(db, "users", currentUser.uid), {
       uid: currentUser.uid,
-      username: username,
-      fullName: fullName,
-      bio: bio,
+      username,
+      fullName,
+      bio,
       photoURL: uploadedImageUrl,
       createdAt: new Date().toISOString()
     });
 
     window.location.href = "home.html";
   } catch (error) {
-    console.error("Firestore Error:", error);
-    alert("Failed to save profile details.");
+    console.error("Firestore error:", error);
+    alert("Error saving profile.");
   }
 });
