@@ -1,6 +1,16 @@
-import { auth, googleProvider, signInWithPopup, db, doc, getDoc } from "./firebase-init.js";
+import { auth, googleProvider, signInWithPopup, db, doc, getDoc, onAuthStateChanged } from "./firebase-init.js";
 
 const googleLoginBtn = document.getElementById("googleLoginBtn");
+
+// If already logged in, redirect directly to feed
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    const userSnap = await getDoc(doc(db, "users", user.uid));
+    if (userSnap.exists()) {
+      window.location.href = "home.html";
+    }
+  }
+});
 
 if (googleLoginBtn) {
   googleLoginBtn.addEventListener("click", async () => {
