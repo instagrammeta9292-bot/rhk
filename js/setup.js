@@ -78,3 +78,4 @@ setupForm.addEventListener("submit", async (e) => {
     alert("Error saving profile.");
   }
 });
+
