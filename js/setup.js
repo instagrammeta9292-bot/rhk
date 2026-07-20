@@ -41,14 +41,20 @@ avatarInput.addEventListener("change", async (e) => {
       body: formData
     });
     const data = await response.json();
+    
     if (data.secure_url) {
       uploadedImageUrl = data.secure_url;
       submitBtn.disabled = false;
       submitBtn.innerText = "Start Using RHK";
+    } else {
+      console.error("Cloudinary profile upload error:", data);
+      alert("Image upload failed: " + (data.error?.message || "Invalid preset"));
+      submitBtn.disabled = false;
+      submitBtn.innerText = "Start Using RHK";
     }
   } catch (error) {
-    console.error("Cloudinary error:", error);
-    alert("Image upload failed.");
+    console.error("Network error:", error);
+    alert("Image upload failed due to network connection.");
     submitBtn.disabled = false;
     submitBtn.innerText = "Start Using RHK";
   }
