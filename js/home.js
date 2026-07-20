@@ -1,128 +1,104 @@
-import { auth, onAuthStateChanged, db, doc, getDoc, collection, getDocs, query, orderBy } from "./firebase-init.js";
+import { auth, db, collection, getDocs, doc, getDoc, updateDoc, arrayUnion, arrayRemove, addDoc, query, orderBy, onAuthStateChanged } from "./firebase-init.js";
 
 const feedContainer = document.getElementById("feedContainer");
-const userStoryAvatar = document.getElementById("userStoryAvatar");
-const storiesContainer = document.getElementById("storiesContainer");
-const uploadModal = document.getElementById("uploadModal");
-const openUploadModal = document.getElementById("openUploadModal");
-const navPlusBtn = document.getElementById("navPlusBtn");
-
-const storyViewer = document.getElementById("storyViewer");
-const closeStoryViewer = document.getElementById("closeStoryViewer");
-const viewerUserAvatar = document.getElementById("viewerUserAvatar");
-const viewerUsername = document.getElementById("viewerUsername");
-const viewerMediaContainer = document.getElementById("viewerMediaContainer");
-
-if(openUploadModal) openUploadModal.onclick = () => uploadModal.style.display = "flex";
-if(navPlusBtn) navPlusBtn.onclick = (e) => { e.preventDefault(); uploadModal.style.display = "flex"; };
-
-window.closeModal = () => uploadModal.style.display = "none";
-if(closeStoryViewer) closeStoryViewer.onclick = () => storyViewer.style.display = "none";
 
 onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    const userDocRef = doc(db, "users", user.uid);
-    const userSnap = await getDoc(userDocRef);
-
-    if (!userSnap.exists()) {
-      window.location.href = "setup.html";
-    } else {
-      const userData = userSnap.data();
-      userStoryAvatar.style.backgroundImage = `url('${userData.photoURL}')`;
-      loadFeedAndStories(userData);
-    }
-  } else {
+  if (!user) {
     window.location.href = "index.html";
+    return;
   }
+  loadFeed(user.uid);
 });
 
-async function loadFeedAndStories(currentUser) {
-  const visibleUserIds = [currentUser.uid, ...(currentUser.following || [])];
-
+async function loadFeed(currentUserId) {
   try {
-    const postsQuery = query(collection(db, "posts"), orderBy("createdAt", "desc"));
-    const postsSnapshot = await getDocs(postsQuery);
-    
-    let postsHTML = "";
-    postsSnapshot.forEach((docSnap) => {
-      const post = docSnap.data();
-      if (visibleUserIds.includes(post.userId)) {
-        let mediaTag = `<img class="post-image" src="${post.mediaUrl}" alt="Post media">`;
-        if (post.mediaType === 'reel' || post.mediaType === 'story_video') {
-          mediaTag = `<video class="post-video" controls src="${post.mediaUrl}"></video>`;
-        }
+    const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
+    const querySnapshot = await getDocs(q);
 
-        postsHTML += `
-          <div class="post-card">
-            <div class="post-header">
-              <a href="view-profile.html?uid=${post.userId}" class="post-user-info">
-                <div class="post-user-avatar" style="background-image: url('${post.userPhoto}');"></div>
-                <span class="post-username">${post.username}</span>
-              </a>
-            </div>
-            <div class="post-media-container">
-              ${mediaTag}
-            </div>
-            <div class="post-actions">
-              <div class="post-actions-left">
-                <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                <svg viewBox="0 0 24 24"><path d="M21 6h-2v9H6v2c0 .55.45 1 1 1h11l4 4V7c0-.55-.45-1-1-1zm-4 6V3c0-.55-.45-1-1-1H3c-.55 0-1 .45-1 1v14l4-4h10c.55 0 1-.45 1-1z"/></svg>
-              </div>
-            </div>
-            <div class="post-footer">
-              <p class="post-caption"><span>${post.username}</span> ${post.caption || ""}</p>
-            </div>
-          </div>
-        `;
-      }
-    });
-
-    if (postsHTML === "") {
-      feedContainer.innerHTML = `<p style="text-align: center; padding: 40px; color: #888;">No posts yet. Search users in Explore to follow them!</p>`;
-    } else {
-      feedContainer.innerHTML = postsHTML;
+    if (querySnapshot.empty) {
+      feedContainer.innerHTML = `<div style="text-align: center; color: #888; margin-top: 40px;">No posts yet. Be the first to share!</div>`;
+      return;
     }
 
-    // Load Stories Tray
-    const usersSnapshot = await getDocs(collection(db, "users"));
-    usersSnapshot.forEach((docSnap) => {
-      const uData = docSnap.data();
-      if (currentUser.following && currentUser.following.includes(uData.uid)) {
-        const storyItem = document.createElement("div");
-        storyItem.className = "story-item";
-        storyItem.onclick = () => {
-          viewerUserAvatar.style.backgroundImage = `url('${uData.photoURL}')`;
-          viewerUsername.innerText = uData.username;
-          
-          // Find active story or fallback post for this user
-          let mediaHtml = `<img src="${uData.photoURL}" style="max-width: 100%; max-height: 100%; object-fit: contain;">`;
-          postsSnapshot.forEach((pDoc) => {
-            const pData = pDoc.data();
-            if (pData.userId === uData.uid && (pData.mediaType === 'story' || pData.mediaType === 'story_video')) {
-              if (pData.mediaType === 'story_video') {
-                mediaHtml = `<video autoplay controls src="${pData.mediaUrl}" style="max-width: 100%; max-height: 100%;"></video>`;
-              } else {
-                mediaHtml = `<img src="${pData.mediaUrl}" style="max-width: 100%; max-height: 100%; object-fit: contain;">`;
-              }
-            }
-          });
+    feedContainer.innerHTML = "";
 
-          viewerMediaContainer.innerHTML = mediaHtml;
-          storyViewer.style.display = "flex";
-        };
+    querySnapshot.forEach((postDoc) => {
+      const post = postDoc.data();
+      const postId = postDoc.id;
+      const likes = post.likes || [];
+      const isLiked = likes.includes(currentUserId);
+      const comments = post.comments || [];
 
-        storyItem.innerHTML = `
-          <div class="story-ring">
-            <div class="story-img" style="background-image: url('${uData.photoURL}');"></div>
-          </div>
-          <span class="story-username">${uData.username}</span>
-        `;
-        storiesContainer.appendChild(storyItem);
+      const postElement = document.createElement("div");
+      postElement.className = "post-card";
+      
+      let mediaContent = '';
+      if (post.mediaType === 'reel' || (post.mediaUrl && post.mediaUrl.includes('.mp4'))) {
+        mediaContent = `<video src="${post.mediaUrl}" controls class="post-media"></video>`;
+      } else {
+        mediaContent = `<img src="${post.mediaUrl}" class="post-media" alt="Post media">`;
       }
-    });
 
+      postElement.innerHTML = `
+        <div class="post-header">
+          <img src="${post.userPhoto || 'https://icon-library.com/images/default-profile-icon/default-profile-icon-24.jpg'}" class="post-avatar">
+          <a href="profile.html?uid=${post.userId}" class="post-username">${post.username}</a>
+        </div>
+        <div class="post-media-box">
+          ${mediaContent}
+        </div>
+        <div class="post-actions">
+          <span class="like-btn" data-id="${postId}">${isLiked ? '❤️' : '🤍'}</span>
+          <span>💬</span>
+          <span>✈️</span>
+        </div>
+        <div class="post-details">
+          <div class="likes-count">${likes.length} likes</div>
+          <div class="caption-text"><span>${post.username}</span>${post.caption || ''}</div>
+          <div class="comments-section" id="comments-${postId}">
+            ${comments.map(c => `<div><b>${c.username}</b> ${c.text}</div>`).join('')}
+          </div>
+        </div>
+        <form class="comment-input-box" data-id="${postId}">
+          <input type="text" class="comment-input" placeholder="Add a comment..." required>
+          <button type="submit" class="comment-submit">Post</button>
+        </form>
+      `;
+
+      // Like Button Event
+      const likeBtn = postElement.querySelector(".like-btn");
+      likeBtn.addEventListener("click", async () => {
+        const postRef = doc(db, "posts", postId);
+        if (isLiked) {
+          await updateDoc(postRef, { likes: arrayRemove(currentUserId) });
+        } else {
+          await updateDoc(postRef, { likes: arrayUnion(currentUserId) });
+        }
+        loadFeed(currentUserId); // Refresh feed
+      });
+
+      // Comment Form Event
+      const commentForm = postElement.querySelector(".comment-input-box");
+      commentForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const inputField = commentForm.querySelector(".comment-input");
+        const commentText = inputField.value.trim();
+        if (!commentText) return;
+
+        const userSnap = await getDoc(doc(db, "users", currentUserId));
+        const username = userSnap.exists() ? userSnap.data().username : "user";
+
+        const postRef = doc(db, "posts", postId);
+        await updateDoc(postRef, {
+          comments: arrayUnion({ username, text: commentText, createdAt: new Date().toISOString() })
+        });
+        loadFeed(currentUserId);
+      });
+
+      feedContainer.appendChild(postElement);
+    });
   } catch (error) {
     console.error("Error loading feed:", error);
-    feedContainer.innerHTML = `<p style="text-align: center; padding: 40px; color: #ed4956;">Error loading posts.</p>`;
+    feedContainer.innerHTML = `<div style="text-align: center; color: red; margin-top: 40px;">Error loading posts.</div>`;
   }
 }
