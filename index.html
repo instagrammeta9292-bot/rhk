@@ -6,13 +6,36 @@
   <title>RHK - Sign In</title>
   <link rel="stylesheet" href="css/style.css">
   <style>
-    /* Keep hidden until auth check determines the user is logged out */
+    /* Splash Screen Style */
+    #splashScreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.3s ease;
+    }
+    
+    /* Hide auth container initially */
     .auth-container {
       display: none;
     }
   </style>
 </head>
 <body>
+
+  <!-- RHK Brand Splash Screen -->
+  <div id="splashScreen">
+    <div class="rhk-brand-logo" style="font-size: 42px; margin-bottom: 12px; color: #fff;">RHK</div>
+    <p style="color: #888; font-size: 14px; font-family: sans-serif; letter-spacing: 1px;">Loading Experience...</p>
+  </div>
+
   <div class="auth-container" id="authContainer">
     <div class="auth-box">
       <div class="rhk-brand-logo" style="font-size: 32px; margin-bottom: 20px;">RHK</div>
@@ -24,6 +47,7 @@
   <script type="module">
     import { auth, db, doc, getDoc, onAuthStateChanged } from "./js/firebase-init.js";
 
+    const splashScreen = document.getElementById("splashScreen");
     const authContainer = document.getElementById("authContainer");
 
     // Instantly check authentication state on load
@@ -42,7 +66,8 @@
           window.location.replace("home.html");
         }
       } else {
-        // User is not logged in: display the login card smoothly
+        // User is not logged in: hide splash screen and display the login card smoothly
+        splashScreen.style.display = "none";
         authContainer.style.display = "flex";
       }
     });
