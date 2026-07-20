@@ -1,7 +1,6 @@
 import { auth, db, doc, setDoc, onAuthStateChanged } from "./firebase-init.js";
 
-// EXACT CLOUD NAME FROM YOUR CLOUDINARY_URL ENVIRONMENT STRING
-const CLOUD_NAME = "nhy9lfkt"; 
+const CLOUD_NAME = "nhy9Ifkt";
 const UPLOAD_PRESET = "rhk_upload";
 
 const avatarInput = document.getElementById("avatarInput");
@@ -42,20 +41,14 @@ avatarInput.addEventListener("change", async (e) => {
       body: formData
     });
     const data = await response.json();
-    
     if (data.secure_url) {
       uploadedImageUrl = data.secure_url;
       submitBtn.disabled = false;
       submitBtn.innerText = "Start Using RHK";
-    } else {
-      console.error("Cloudinary setup upload error:", data);
-      alert("Image upload failed: " + (data.error?.message || "Invalid setup configuration"));
-      submitBtn.disabled = false;
-      submitBtn.innerText = "Start Using RHK";
     }
   } catch (error) {
-    console.error("Network error:", error);
-    alert("Image upload failed due to network connection.");
+    console.error("Cloudinary error:", error);
+    alert("Image upload failed.");
     submitBtn.disabled = false;
     submitBtn.innerText = "Start Using RHK";
   }
@@ -84,6 +77,6 @@ setupForm.addEventListener("submit", async (e) => {
     window.location.href = "home.html";
   } catch (error) {
     console.error("Firestore error:", error);
-    alert("Error saving profile settings.");
+    alert("Error saving profile.");
   }
 });
