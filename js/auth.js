@@ -1,5 +1,4 @@
-import { auth, db, doc, getDoc, onAuthStateChanged } from "./firebase-init.js";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { auth, db, doc, getDoc, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "./firebase-init.js";
 
 const loginForm = document.getElementById("loginForm");
 const emailInput = document.getElementById("emailInput");
@@ -22,9 +21,15 @@ toggleModeText.addEventListener("click", () => {
 
 onAuthStateChanged(auth, async (user) => {
   if (user) {
-    const userSnap = await getDoc(doc(db, "users", user.uid));
-    if (userSnap.exists()) {
-      window.location.href = "home.html";
+    try {
+      const userSnap = await getDoc(doc(db, "users", user.uid));
+      if (userSnap.exists()) {
+        window.location.href = "home.html";
+      } else {
+        window.location.href = "setup.html";
+      }
+    } catch (err) {
+      console.error("Firestore navigation check error:", err);
     }
   }
 });
@@ -65,8 +70,8 @@ if (loginForm) {
         }
       }
     } catch (error) {
-      console.error("Auth Error:", error.message);
-      alert("Authentication failed: " + error.message);
+      console.error("WebView Auth Error:", error.code, error.message);
+      alert("Login failed: " + error.message);
     }
   });
 }
