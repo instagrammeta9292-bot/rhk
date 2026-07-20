@@ -1,7 +1,7 @@
 import { auth, db, doc, setDoc, onAuthStateChanged } from "./firebase-init.js";
 
-// FIX: Cloud Name converted to strict lowercase here as well
-const CLOUD_NAME = "nhy9ifkt"; 
+// EXACT CLOUD NAME FROM YOUR CLOUDINARY_URL ENVIRONMENT STRING
+const CLOUD_NAME = "nhy9lfkt"; 
 const UPLOAD_PRESET = "rhk_upload";
 
 const avatarInput = document.getElementById("avatarInput");
