@@ -43,7 +43,6 @@
     }
     .msg-row:hover { background: #0a0a0a; }
 
-    /* Chat Window Overlay */
     #chatWindow {
       position: fixed;
       top: 0;
@@ -84,7 +83,6 @@
 </head>
 <body>
 
-  <!-- Inbox List View -->
   <div id="inboxView">
     <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-bottom: 1px solid #262626;">
       <div style="display: flex; align-items: center; gap: 10px;">
@@ -106,7 +104,6 @@
     <div id="messagesList"></div>
   </div>
 
-  <!-- Direct Chat Room View -->
   <div id="chatWindow">
     <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; border-bottom: 1px solid #262626;">
       <div style="display: flex; align-items: center; gap: 12px;">
@@ -131,7 +128,6 @@
     const notesTray = document.getElementById("notesTray");
     const messagesList = document.getElementById("messagesList");
 
-    const inboxView = document.getElementById("inboxView");
     const chatWindow = document.getElementById("chatWindow");
     const closeChatBtn = document.getElementById("closeChatBtn");
     const chatUserAvatar = document.getElementById("chatUserAvatar");
@@ -164,7 +160,7 @@
             const other = docSnap.data();
             if (other.uid !== user.uid) {
               notesHtml += `
-                <div class="note-item">
+                <div class="note-item" onclick="window.location.href='view-profile.html?uid=${other.uid}'">
                   <div class="note-bubble">Hello! ✨</div>
                   <div style="width: 60px; height: 60px; border-radius: 50%; background-image: url('${other.photoURL}'); background-size: cover; background-position: center;"></div>
                   <span style="font-size: 11px; color: #aaa; margin-top: 4px; max-width: 65px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${other.username}</span>
@@ -173,13 +169,14 @@
 
               msgsHtml += `
                 <div class="msg-row" data-uid="${other.uid}" data-username="${other.username}" data-photo="${other.photoURL}">
-                  <div style="display: flex; align-items: center; gap: 12px;">
+                  <div style="display: flex; align-items: center; gap: 12px;" onclick="window.location.href='view-profile.html?uid=${other.uid}'">
                     <div style="width: 50px; height: 50px; border-radius: 50%; background-image: url('${other.photoURL}'); background-size: cover; background-position: center;"></div>
                     <div>
                       <div style="font-weight: 600; font-size: 14px;">${other.username}</div>
                       <div style="color: #888; font-size: 12px; margin-top: 2px;">Active recently</div>
                     </div>
                   </div>
+                  <div class="open-chat-trigger" style="flex: 1; height: 100%; cursor: pointer;" data-uid="${other.uid}" data-username="${other.username}" data-photo="${other.photoURL}"></div>
                   <svg style="width: 20px; height: 20px; fill: #888;" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
                 </div>
               `;
@@ -189,11 +186,8 @@
           notesTray.innerHTML = notesHtml;
           messagesList.innerHTML = msgsHtml || `<p style="padding: 20px; color: #888; text-align: center;">No messages yet.</p>`;
 
-          // Bind chat triggers
-          document.querySelectorAll('.msg-row').forEach(row => {
-            row.onclick = () => {
-              openChat(row.dataset.uid, row.dataset.username, row.dataset.photo);
-            };
+          document.querySelectorAll('.open-chat-trigger').forEach(el => {
+            el.onclick = () => openChat(el.dataset.uid, el.dataset.username, el.dataset.photo);
           });
         }
       } else {
@@ -203,12 +197,12 @@
 
     function openChat(targetUid, targetUsername, targetPhoto) {
       chatUsernameTitle.innerText = targetUsername;
+      chatUsernameTitle.onclick = () => window.location.href = `view-profile.html?uid=${targetUid}`;
       chatUserAvatar.style.backgroundImage = `url('${targetPhoto}')`;
+      chatUserAvatar.onclick = () => window.location.href = `view-profile.html?uid=${targetUid}`;
       chatWindow.style.display = "flex";
 
-      // Generate consistent chat collection ID regardless of who started it
       currentChatId = [currentUser.uid, targetUid].sort().join("_");
-
       const q = query(collection(db, "chats", currentChatId, "messages"), orderBy("createdAt", "asc"));
       
       if (unsubscribeMessages) unsubscribeMessages();
