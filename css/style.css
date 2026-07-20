@@ -39,10 +39,11 @@ body {
   align-items: center;
 }
 
-.top-icons a svg {
+.top-icons a svg, .top-icons svg {
   width: 24px;
   height: 24px;
   fill: #fff;
+  cursor: pointer;
 }
 
 /* Stories Tray */
@@ -139,7 +140,7 @@ body {
   overflow: hidden;
 }
 
-.post-image {
+.post-image, .post-video {
   width: 100%;
   height: auto;
   object-fit: cover;
@@ -250,42 +251,57 @@ body {
   background-color: #0095f6;
   color: white;
   border: none;
-  padding: 12px;
-  width: 100%;
-  border-radius: 6px;
+  padding: 10px 16px;
+  border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
+  width: 100%;
 }
 
 .secondary-btn {
   background-color: #262626;
   color: white;
   border: none;
-  padding: 8px 16px;
-  border-radius: 6px;
+  padding: 10px 16px;
+  border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
-}
-
-.logout-btn {
-  background-color: #ed4956;
-  color: white;
-  border: none;
-  padding: 12px;
   width: 100%;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
-  margin-top: 15px;
 }
 
-/* Search & Profile Listings */
-.user-search-item {
+/* Modal Popup Sheet */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: none;
+  justify-content: center;
+  align-items: flex-end;
+  z-index: 2000;
+}
+
+.modal-sheet {
+  background: #262626;
+  width: 100%;
+  max-width: 500px;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  padding: 20px;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 15px;
-  border-bottom: 1px solid #1a1a1a;
-  text-decoration: none;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modal-option {
+  background: #121212;
   color: #fff;
+  padding: 14px;
+  text-align: center;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid #333;
 }
