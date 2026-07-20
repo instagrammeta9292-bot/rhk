@@ -1,6 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>RHK Profile</title><link rel="stylesheet" href="css/style.css"></head>
-<body><h2 style="padding: 20px;">User Profile Page (Connected)</h2><script type="module" src="js/firebase-init.js"></script></body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RHK Profile</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="page-container">
+    <div class="content-box">
+      <div class="rhk-brand-logo" style="margin-bottom: 20px;">RHK Profile</div>
+      <p id="profileInfo" style="margin-bottom: 20px; color: #a8a8a8; font-size: 14px;">Loading user profile...</p>
+      <button id="logoutBtn" class="logout-btn">Log Out</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { auth, signOut, onAuthStateChanged, db, doc, getDoc } from "./js/firebase-init.js";
+    
+    const profileInfo = document.getElementById("profileInfo");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const snap = await getDoc(doc(db, "users", user.uid));
+        if (snap.exists()) {
+          const data = snap.data();
+          profileInfo.innerText = `Logged in as @${data.username}`;
+        }
+      } else {
+        window.location.href = "index.html";
+      }
+    });
+
+    logoutBtn.addEventListener("click", async () => {
+      await signOut(auth);
+      window.location.href = "index.html";
+    });
+  </script>
+</body>
 </html>
 
