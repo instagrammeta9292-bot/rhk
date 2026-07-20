@@ -83,7 +83,7 @@
         const p = docSnap.data();
         let bgImg = p.mediaUrl;
         if(p.mediaType === 'reel' || p.mediaType === 'story_video') {
-          bgImg = "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=300"; // thumbnail fallback for videos
+          bgImg = "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=300";
         }
         gridHtml += `<div class="grid-thumbnail" style="background-image: url('${bgImg}')"></div>`;
       });
