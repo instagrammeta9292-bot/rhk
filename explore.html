@@ -5,19 +5,57 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>RHK Explore</title>
   <link rel="stylesheet" href="css/style.css">
+  <style>
+    .explore-search-bar {
+      padding: 10px 15px;
+      background: #000;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .search-grid-container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      padding-bottom: 60px;
+    }
+    .grid-thumbnail {
+      width: 100%;
+      aspect-ratio: 1/1;
+      background-color: #1a1a1a;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+    }
+    .user-result-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 15px;
+      border-bottom: 1px solid #1a1a1a;
+      text-decoration: none;
+      color: #fff;
+    }
+  </style>
 </head>
 <body>
-  <div style="padding: 15px;">
-    <input type="text" id="searchInput" class="input-field" placeholder="Search accounts (e.g. rahul)...">
+
+  <div class="explore-search-bar">
+    <input type="text" id="searchInput" class="input-field" placeholder="Search" style="margin-bottom: 0; border-radius: 10px; background: #262626; border: none; text-align: left; padding-left: 15px;">
   </div>
-  <div id="searchResults"></div>
+
+  <div id="userSearchResults"></div>
+
+  <div class="search-grid-container" id="exploreGrid">
+    <!-- Populated dynamically -->
+  </div>
 
   <!-- Bottom Navigation Bar -->
   <nav class="bottom-nav">
     <a href="home.html"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></a>
     <a href="explore.html"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg></a>
     <a href="reels.html"><svg viewBox="0 0 24 24"><path d="M18 3H6c-1.66 0-3 1.34-3 3v12c0 1.66 1.34 3 3 3h12c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3zm-9 13.5v-9l7 4.5-7 4.5z"/></svg></a>
-    <a href="upload.html"><svg viewBox="0 0 24 24"><path d="M19 11h-6V5h-2v6H5v2h6v6h2v-6h6z"/></svg></a>
+    <a href="home.html" onclick="localStorage.setItem('openUpload', 'true')"><svg viewBox="0 0 24 24"><path d="M19 11h-6V5h-2v6H5v2h6v6h2v-6h6z"/></svg></a>
     <a href="profile.html"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg></a>
   </nav>
 
@@ -25,28 +63,49 @@
     import { auth, db, collection, getDocs, onAuthStateChanged } from "./js/firebase-init.js";
 
     const searchInput = document.getElementById("searchInput");
-    const searchResults = document.getElementById("searchResults");
+    const userSearchResults = document.getElementById("userSearchResults");
+    const exploreGrid = document.getElementById("exploreGrid");
     let currentUserId = null;
 
-    onAuthStateChanged(auth, (user) => {
-      if (user) currentUserId = user.uid;
-      else window.location.href = "index.html";
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        currentUserId = user.uid;
+        loadExploreGrid();
+      } else {
+        window.location.href = "index.html";
+      }
     });
+
+    async function loadExploreGrid() {
+      const snap = await getDocs(collection(db, "posts"));
+      let gridHtml = "";
+      snap.forEach((docSnap) => {
+        const p = docSnap.data();
+        let bgImg = p.mediaUrl;
+        if(p.mediaType === 'reel' || p.mediaType === 'story_video') {
+          bgImg = "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=300"; // thumbnail fallback for videos
+        }
+        gridHtml += `<div class="grid-thumbnail" style="background-image: url('${bgImg}')"></div>`;
+      });
+      exploreGrid.innerHTML = gridHtml || `<p style="padding: 20px; color: #888; grid-column: span 3; text-align: center;">No explore media found</p>`;
+    }
 
     searchInput.addEventListener("input", async (e) => {
       const term = e.target.value.trim().toLowerCase();
       if (!term) {
-        searchResults.innerHTML = "";
+        userSearchResults.innerHTML = "";
+        exploreGrid.style.display = "grid";
         return;
       }
 
+      exploreGrid.style.display = "none";
       const querySnapshot = await getDocs(collection(db, "users"));
       let html = "";
       querySnapshot.forEach((docSnap) => {
         const u = docSnap.data();
         if (u.uid !== currentUserId && u.username.includes(term)) {
           html += `
-            <a href="view-profile.html?uid=${u.uid}" class="user-search-item">
+            <a href="view-profile.html?uid=${u.uid}" class="user-result-row">
               <div style="display: flex; align-items: center; gap: 10px;">
                 <div style="width: 40px; height: 40px; border-radius: 50%; background-image: url('${u.photoURL}'); background-size: cover; background-position: center;"></div>
                 <div>
@@ -59,7 +118,7 @@
           `;
         }
       });
-      searchResults.innerHTML = html || `<p style="padding: 15px; color: #888;">No users found.</p>`;
+      userSearchResults.innerHTML = html || `<p style="padding: 15px; color: #888; text-align: center;">No users found.</p>`;
     });
   </script>
 </body>
