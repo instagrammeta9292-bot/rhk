@@ -58,7 +58,7 @@ setupForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   if (!currentUser) return;
 
-  const username = document.getElementById("usernameInput").value.trim();
+  const username = document.getElementById("usernameInput").value.trim().toLowerCase();
   const fullName = document.getElementById("fullNameInput").value.trim();
   const bio = document.getElementById("bioInput").value.trim();
 
@@ -69,6 +69,8 @@ setupForm.addEventListener("submit", async (e) => {
       fullName,
       bio,
       photoURL: uploadedImageUrl,
+      following: [],
+      followers: [],
       createdAt: new Date().toISOString()
     });
 
@@ -78,4 +80,3 @@ setupForm.addEventListener("submit", async (e) => {
     alert("Error saving profile.");
   }
 });
-
