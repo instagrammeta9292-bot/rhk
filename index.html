@@ -6,13 +6,48 @@
   <title>RHK - Login</title>
   <link rel="stylesheet" href="css/style.css">
   <style>
-    /* Hide the entire container initially to prevent the flash of login buttons */
+    /* Center a smooth loading state while Firebase checks authentication */
+    #loadingScreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-family: sans-serif;
+      z-index: 9999;
+    }
+    .spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid rgba(255,255,255,0.1);
+      border-top-color: #0095f6;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 12px;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    /* Hidden by default until auth check finishes */
     #authContainer {
       display: none; 
     }
   </style>
 </head>
 <body>
+
+  <!-- Loading Screen to prevent blank black gaps -->
+  <div id="loadingScreen">
+    <div class="spinner"></div>
+    <div style="font-size: 14px; color: #888;">Loading RHK...</div>
+  </div>
+
   <div class="page-container" id="authContainer">
     <div class="content-box" style="max-width: 350px; text-align: center;">
       <div class="rhk-brand-logo" style="font-size: 36px; margin-bottom: 25px;">RHK</div>
@@ -43,6 +78,7 @@
   <script type="module">
     import { auth, db, doc, getDoc, signInWithEmailAndPassword, signInWithPopup, googleProvider, onAuthStateChanged } from "./js/firebase-init.js";
 
+    const loadingScreen = document.getElementById("loadingScreen");
     const authContainer = document.getElementById("authContainer");
     const loginForm = document.getElementById("loginForm");
     const googleBtn = document.getElementById("googleBtn");
@@ -50,7 +86,7 @@
     // Check auth state immediately upon loading
     onAuthStateChanged(auth, async (user) => {
       if (user) {
-        // User is already logged in, check if their profile is set up in Firestore
+        // User is logged in, redirect right away without showing login form
         try {
           const userDoc = await getDoc(doc(db, "users", user.uid));
           if (userDoc.exists()) {
@@ -63,7 +99,8 @@
           window.location.replace("home.html");
         }
       } else {
-        // Not logged in: Safe to display the login page elements now
+        // User is not logged in: hide loading screen and show the login elements smoothly
+        loadingScreen.style.display = "none";
         authContainer.style.display = "flex";
       }
     });
