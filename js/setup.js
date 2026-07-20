@@ -1,6 +1,7 @@
 import { auth, db, doc, setDoc, onAuthStateChanged } from "./firebase-init.js";
 
-const CLOUD_NAME = "nhy9Ifkt";
+// FIX: Cloud Name converted to strict lowercase here as well
+const CLOUD_NAME = "nhy9ifkt"; 
 const UPLOAD_PRESET = "rhk_upload";
 
 const avatarInput = document.getElementById("avatarInput");
@@ -47,8 +48,8 @@ avatarInput.addEventListener("change", async (e) => {
       submitBtn.disabled = false;
       submitBtn.innerText = "Start Using RHK";
     } else {
-      console.error("Cloudinary profile upload error:", data);
-      alert("Image upload failed: " + (data.error?.message || "Invalid preset"));
+      console.error("Cloudinary setup upload error:", data);
+      alert("Image upload failed: " + (data.error?.message || "Invalid setup configuration"));
       submitBtn.disabled = false;
       submitBtn.innerText = "Start Using RHK";
     }
@@ -83,6 +84,6 @@ setupForm.addEventListener("submit", async (e) => {
     window.location.href = "home.html";
   } catch (error) {
     console.error("Firestore error:", error);
-    alert("Error saving profile.");
+    alert("Error saving profile settings.");
   }
 });
