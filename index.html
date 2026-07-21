@@ -5,6 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>RHK - Sign In</title>
   <link rel="stylesheet" href="css/style.css">
+  
+  <!-- Web App Manifest Link -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#000000">
+
+  <!-- OneSignal Push Notification SDK -->
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: "YOUR-ONESIGNAL-APP-ID", // Replace with your actual OneSignal App ID
+      });
+    });
+  </script>
+
   <style>
     #splashScreen {
       position: fixed;
