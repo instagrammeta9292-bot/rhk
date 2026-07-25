@@ -3,240 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RHK Messages</title>
+  <title>RHK Direct Messages</title>
   <link rel="stylesheet" href="css/style.css">
-  <style>
-    .notes-tray {
-      display: flex;
-      gap: 15px;
-      padding: 10px 15px;
-      overflow-x: auto;
-      border-bottom: 1px solid #1a1a1a;
-    }
-    .notes-tray::-webkit-scrollbar { display: none; }
-    .note-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      position: relative;
-      cursor: pointer;
-      flex-shrink: 0;
-    }
-    .note-bubble {
-      background: #262626;
-      padding: 6px 12px;
-      border-radius: 12px;
-      font-size: 11px;
-      margin-bottom: 5px;
-      max-width: 80px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      border: 1px solid #333;
-    }
-    .msg-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 15px;
-      cursor: pointer;
-    }
-    .msg-row:hover { background: #0a0a0a; }
-
-    #chatWindow {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: #000;
-      z-index: 5000;
-      display: none;
-      flex-direction: column;
-    }
-    .chat-messages {
-      flex: 1;
-      overflow-y: auto;
-      padding: 15px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .message-bubble {
-      max-width: 70%;
-      padding: 10px 14px;
-      border-radius: 16px;
-      font-size: 14px;
-      word-break: break-word;
-    }
-    .message-bubble.sent {
-      background: #0095f6;
-      color: #fff;
-      align-self: flex-end;
-    }
-    .message-bubble.received {
-      background: #262626;
-      color: #fff;
-      align-self: flex-start;
-    }
-  </style>
 </head>
 <body>
 
-  <div id="inboxView">
-    <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-bottom: 1px solid #262626;">
-      <div style="display: flex; align-items: center; gap: 10px;">
-        <a href="home.html" style="color: #fff;"><svg style="width: 24px; height: 24px; fill: #fff;" viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg></a>
-        <span id="headerUsername" style="font-weight: 700; font-size: 18px;">username</span>
-      </div>
+  <header class="top-nav">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <a href="home.html" style="color: #fff; text-decoration: none; font-size: 20px;">←</a>
+      <div id="chatHeaderName" style="font-weight: 600; font-size: 16px;">Messages</div>
     </div>
+  </header>
 
-    <div style="padding: 10px 15px;">
-      <input type="text" class="input-field" placeholder="Search" style="margin-bottom: 0; background: #262626; border: none; border-radius: 8px; padding-left: 15px;">
-    </div>
-
-    <div class="notes-tray" id="notesTray"></div>
-
-    <div style="display: flex; justify-content: space-between; padding: 15px 15px 5px 15px; font-weight: 700; font-size: 16px;">
-      <span>Messages</span>
-    </div>
-
-    <div id="messagesList"></div>
+  <div class="chat-container" id="chatContainer">
+    <p style="text-align: center; color: #888; margin-top: 20px;">Select a conversation or start chatting.</p>
   </div>
 
-  <div id="chatWindow">
-    <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; border-bottom: 1px solid #262626;">
-      <div style="display: flex; align-items: center; gap: 12px;">
-        <svg id="closeChatBtn" style="width: 24px; height: 24px; fill: #fff; cursor: pointer;" viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
-        <div id="chatUserAvatar" style="width: 36px; height: 36px; border-radius: 50%; background-size: cover; background-position: center; background-color: #333; cursor: pointer;"></div>
-        <span id="chatUsernameTitle" style="font-weight: 600; font-size: 16px; cursor: pointer;"></span>
-      </div>
-    </div>
-    
-    <div class="chat-messages" id="chatMessagesContainer"></div>
-
-    <div style="padding: 12px 15px; border-top: 1px solid #262626; display: flex; gap: 10px; background: #000;">
-      <input type="text" id="chatInput" class="input-field" placeholder="Message..." style="margin-bottom: 0; border-radius: 20px;">
-      <button id="sendMsgBtn" class="primary-btn" style="width: 80px; border-radius: 20px;">Send</button>
-    </div>
+  <!-- Chat Input Bar -->
+  <div style="position: fixed; bottom: 0; left: 0; width: 100%; background: #000; border-top: 1px solid #262626; padding: 10px 15px; display: flex; align-items: center; gap: 10px; z-index: 1000;">
+    <input type="text" id="messageInput" class="input-field" placeholder="Message..." style="margin-bottom: 0; border-radius: 20px;">
+    <button id="sendBtn" class="primary-btn" style="width: auto; padding: 10px 20px; border-radius: 20px;">Send</button>
   </div>
 
-  <script type="module">
-    import { auth, db, collection, getDocs, doc, getDoc, addDoc, query, orderBy, onSnapshot, onAuthStateChanged } from "./js/firebase-init.js";
-
-    const headerUsername = document.getElementById("headerUsername");
-    const notesTray = document.getElementById("notesTray");
-    const messagesList = document.getElementById("messagesList");
-
-    const chatWindow = document.getElementById("chatWindow");
-    const closeChatBtn = document.getElementById("closeChatBtn");
-    const chatUserAvatar = document.getElementById("chatUserAvatar");
-    const chatUsernameTitle = document.getElementById("chatUsernameTitle");
-    const chatMessagesContainer = document.getElementById("chatMessagesContainer");
-    const chatInput = document.getElementById("chatInput");
-    const sendMsgBtn = document.getElementById("sendMsgBtn");
-
-    let currentUser = null;
-    let currentChatId = null;
-    let unsubscribeMessages = null;
-
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        currentUser = user;
-        const userSnap = await getDoc(doc(db, "users", user.uid));
-        if (userSnap.exists()) {
-          const uData = userSnap.data();
-          headerUsername.innerText = uData.username;
-
-          const usersSnap = await getDocs(collection(db, "users"));
-          let msgsHtml = "";
-          let notesHtml = `<div class="note-item">
-            <div class="note-bubble">What's new...</div>
-            <div style="width: 60px; height: 60px; border-radius: 50%; background-image: url('${uData.photoURL}'); background-size: cover; background-position: center;"></div>
-            <span style="font-size: 11px; color: #888; margin-top: 4px;">Your note</span>
-          </div>`;
-
-          usersSnap.forEach((docSnap) => {
-            const other = docSnap.data();
-            if (other.uid !== user.uid) {
-              notesHtml += `
-                <div class="note-item" onclick="window.location.href='view-profile.html?uid=${other.uid}'">
-                  <div class="note-bubble">Hello! ✨</div>
-                  <div style="width: 60px; height: 60px; border-radius: 50%; background-image: url('${other.photoURL}'); background-size: cover; background-position: center;"></div>
-                  <span style="font-size: 11px; color: #aaa; margin-top: 4px; max-width: 65px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${other.username}</span>
-                </div>
-              `;
-
-              msgsHtml += `
-                <div class="msg-row" data-uid="${other.uid}" data-username="${other.username}" data-photo="${other.photoURL}">
-                  <div style="display: flex; align-items: center; gap: 12px; flex: 1;" class="open-chat-trigger" data-uid="${other.uid}" data-username="${other.username}" data-photo="${other.photoURL}">
-                    <div style="width: 50px; height: 50px; border-radius: 50%; background-image: url('${other.photoURL}'); background-size: cover; background-position: center;"></div>
-                    <div>
-                      <div style="font-weight: 600; font-size: 14px;">${other.username}</div>
-                      <div style="color: #888; font-size: 12px; margin-top: 2px;">Active recently</div>
-                    </div>
-                  </div>
-                  <svg class="open-chat-trigger" style="width: 20px; height: 20px; fill: #888; cursor: pointer;" viewBox="0 0 24 24" data-uid="${other.uid}" data-username="${other.username}" data-photo="${other.photoURL}"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
-                </div>
-              `;
-            }
-          });
-
-          notesTray.innerHTML = notesHtml;
-          messagesList.innerHTML = msgsHtml || `<p style="padding: 20px; color: #888; text-align: center;">No messages yet.</p>`;
-
-          document.querySelectorAll('.open-chat-trigger').forEach(el => {
-            el.onclick = (e) => {
-              e.stopPropagation();
-              openChat(el.dataset.uid, el.dataset.username, el.dataset.photo);
-            };
-          });
-        }
-      } else {
-        window.location.href = "index.html";
-      }
-    });
-
-    function openChat(targetUid, targetUsername, targetPhoto) {
-      chatUsernameTitle.innerText = targetUsername;
-      chatUsernameTitle.onclick = () => window.location.href = `view-profile.html?uid=${targetUid}`;
-      chatUserAvatar.style.backgroundImage = `url('${targetPhoto}')`;
-      chatUserAvatar.onclick = () => window.location.href = `view-profile.html?uid=${targetUid}`;
-      chatWindow.style.display = "flex";
-
-      currentChatId = [currentUser.uid, targetUid].sort().join("_");
-      const q = query(collection(db, "chats", currentChatId, "messages"), orderBy("createdAt", "asc"));
-      
-      if (unsubscribeMessages) unsubscribeMessages();
-
-      unsubscribeMessages = onSnapshot(q, (snapshot) => {
-        let chatHtml = "";
-        snapshot.forEach((docSnap) => {
-          const msg = docSnap.data();
-          const isMe = msg.senderId === currentUser.uid;
-          chatHtml += `<div class="message-bubble ${isMe ? 'sent' : 'received'}">${msg.text}</div>`;
-        });
-        chatMessagesContainer.innerHTML = chatHtml;
-        chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
-      });
-    }
-
-    sendMsgBtn.onclick = async () => {
-      const text = chatInput.value.trim();
-      if (!text || !currentChatId) return;
-
-      chatInput.value = "";
-      await addDoc(collection(db, "chats", currentChatId, "messages"), {
-        senderId: currentUser.uid,
-        text: text,
-        createdAt: new Date().toISOString()
-      });
-    };
-
-    closeChatBtn.onclick = () => {
-      if (unsubscribeMessages) unsubscribeMessages();
-      chatWindow.style.display = "none";
-    };
-  </script>
+  <script type="module" src="js/direct.js"></script>
 </body>
 </html>
