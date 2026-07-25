@@ -5,51 +5,159 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>RHK Reels</title>
   <link rel="stylesheet" href="css/style.css">
+  <style>
+    body {
+      background-color: #000;
+      overflow: hidden;
+    }
+    .reels-container {
+      height: 100vh;
+      overflow-y: scroll;
+      scroll-snap-type: y mandatory;
+      padding-bottom: 50px;
+    }
+    .reel-item {
+      height: 100vh;
+      scroll-snap-align: start;
+      position: relative;
+      background: #111;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .reel-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .reel-overlay-content {
+      position: absolute;
+      bottom: 70px;
+      left: 15px;
+      right: 70px;
+      color: #fff;
+      z-index: 10;
+    }
+    .reel-user-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      text-decoration: none;
+      color: #fff;
+    }
+    .reel-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background-size: cover;
+      background-position: center;
+      border: 1px solid #fff;
+    }
+    .reel-actions {
+      position: absolute;
+      right: 15px;
+      bottom: 70px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      z-index: 10;
+    }
+    .reel-action-btn {
+      background: none;
+      border: none;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+    .reel-action-btn svg {
+      width: 28px;
+      height: 28px;
+      fill: #fff;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+    }
+    .reel-action-btn span {
+      font-size: 12px;
+      font-weight: 600;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+    }
+  </style>
 </head>
 <body>
-  <div style="padding: 20px; font-weight: 700; font-size: 18px; border-bottom: 1px solid #262626;">Reels Stream</div>
-  <div id="reelsContainer"></div>
-  <a href="home.html" style="color: #0095f6; padding: 20px; display: block;">Back to Home</a>
+
+  <div class="reels-container" id="reelsFeed">
+    <!-- Dynamic Reels Content -->
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="home.html"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></a>
+    <a href="explore.html"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg></a>
+    <a href="reels.html"><svg viewBox="0 0 24 24"><path d="M18 3H6c-1.66 0-3 1.34-3 3v12c0 1.66 1.34 3 3 3h12c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3zm-9 13.5v-9l7 4.5-7 4.5z"/></svg></a>
+    <a href="home.html" onclick="localStorage.setItem('openUpload', 'true')"><svg viewBox="0 0 24 24"><path d="M19 11h-6V5h-2v6H5v2h6v6h2v-6h6z"/></svg></a>
+    <a href="profile.html"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg></a>
+  </nav>
 
   <script type="module">
     import { auth, db, collection, getDocs, onAuthStateChanged } from "./js/firebase-init.js";
 
-    const reelsContainer = document.getElementById("reelsContainer");
+    const reelsFeed = document.getElementById("reelsFeed");
 
     onAuthStateChanged(auth, async (user) => {
-      if (!user) {
+      if (user) {
+        loadReels();
+      } else {
         window.location.href = "index.html";
-        return;
       }
-      
-      const usersSnap = await getDocs(collection(db, "users"));
-      const usersMap = {};
-      usersSnap.forEach(docSnap => {
-        usersMap[docSnap.id] = docSnap.data();
-      });
+    });
 
+    async function loadReels() {
       const snap = await getDocs(collection(db, "posts"));
       let html = "";
-      snap.forEach(docSnap => {
+      snap.forEach((docSnap) => {
         const p = docSnap.data();
-        if (p.mediaType === 'reel') {
-          const reelAuthor = usersMap[p.userId] || {};
-          const isVerified = reelAuthor.isVerified ? `<span class="verified-badge">✔️</span>` : '';
-
+        if (p.mediaType === 'reel' || p.mediaType === 'story_video') {
           html += `
-            <div style="padding: 15px; border-bottom: 1px solid #262626;">
-              <a href="view-profile.html?uid=${p.userId}" style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px; text-decoration: none; color: #fff;">
-                <div style="width: 32px; height: 32px; border-radius: 50%; background-image: url('${p.userPhoto || reelAuthor.photoURL}'); background-size: cover; background-position: center;"></div>
-                <span style="font-weight: 600; font-size: 14px;">${p.username} ${isVerified}</span>
-              </a>
-              <video controls src="${p.mediaUrl}" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 8px;"></video>
-              <p style="margin-top: 8px; font-size: 14px;">${p.caption || ''}</p>
+            <div class="reel-item">
+              <video class="reel-video" src="${p.mediaUrl}" loop playsinline></video>
+              <div class="reel-overlay-content">
+                <a href="view-profile.html?uid=${p.uid}" class="reel-user-row">
+                  <div class="reel-avatar" style="background-image: url('${p.userPhoto || ''}')"></div>
+                  <span style="font-weight: 600; font-size: 14px;">${p.username || 'RHK User'}</span>
+                </a>
+                <p style="font-size: 14px; color: #ddd;">${p.caption || ''}</p>
+              </div>
+              <div class="reel-actions">
+                <button class="reel-action-btn" onclick="toggleLike(this)">
+                  <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                  <span>${p.likesCount || 0}</span>
+                </button>
+              </div>
             </div>
           `;
         }
       });
-      reelsContainer.innerHTML = html || `<p style="padding: 40px; text-align: center; color: #888;">No reels uploaded yet.</p>`;
-    });
+      reelsFeed.innerHTML = html || `<p style="text-align:center; color:#888; margin-top:50vh;">No reels available yet.</p>`;
+
+      // Autoplay visible video
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          const video = entry.target.querySelector('video');
+          if (video) {
+            if (entry.isIntersecting) {
+              video.play().catch(() => {});
+            } else {
+              video.pause();
+            }
+          }
+        });
+      }, { threshold: 0.6 });
+
+      document.querySelectorAll('.reel-item').forEach(item => observer.observe(item));
+    }
   </script>
 </body>
 </html>
