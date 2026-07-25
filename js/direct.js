@@ -1,4 +1,4 @@
-import { auth, db, onAuthStateChanged, collection, addDoc, query, orderBy, onSnapshot, doc, getDoc } from "./firebase-init.js";
+import { auth, db, onAuthStateChanged, collection, addDoc, query, orderBy, onSnapshot, doc, getDoc, updateDoc } from "./firebase-init.js";
 
 const chatContainer = document.getElementById("chatContainer");
 const messageInput = document.getElementById("messageInput");
@@ -6,7 +6,6 @@ const sendBtn = document.getElementById("sendBtn");
 const chatHeaderName = document.getElementById("chatHeaderName");
 
 let currentUserId = null;
-// For demonstration, we target a general chat room or query param chat ID if provided
 const urlParams = new URLSearchParams(window.location.search);
 const recipientUid = urlParams.get("uid");
 
@@ -35,7 +34,7 @@ sendBtn.onclick = async () => {
       recipientId: recipientUid || "global",
       text: text,
       timestamp: new Date().toISOString(),
-      status: "sent" // sent, delivered, seen
+      status: "sent"
     });
     messageInput.value = "";
   } catch (error) {
@@ -49,12 +48,10 @@ function loadMessages() {
     let messagesHTML = "";
     snapshot.forEach((docSnap) => {
       const msg = docSnap.data();
-      // Filter for global or direct chat between users
       if (msg.recipientId === "global" || msg.senderId === currentUserId || msg.recipientId === currentUserId) {
         const isOutgoing = msg.senderId === currentUserId;
         const bubbleClass = isOutgoing ? "message-bubble outgoing" : "message-bubble incoming";
         
-        // Status checkmarks (✓ Sent, ✓✓ Delivered, Blue = Seen)
         let statusIcon = "✓";
         let statusClass = "message-status";
         if (msg.status === "delivered") statusIcon = "✓✓";
@@ -76,4 +73,3 @@ function loadMessages() {
     chatContainer.scrollTop = chatContainer.scrollHeight;
   });
 }
-
