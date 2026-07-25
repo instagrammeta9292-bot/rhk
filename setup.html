@@ -3,31 +3,66 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RHK - Create Profile</title>
+  <title>RHK - Profile Setup</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body style="display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #000;">
+
   <div class="setup-container">
     <div class="setup-box">
-      <div class="rhk-brand-logo" style="font-size: 28px; margin-bottom: 15px;">RHK</div>
-      <p style="margin-bottom: 20px; font-size: 14px; color: #a8a8a8;">Set up your profile details</p>
-      
-      <form id="setupForm">
-        <div style="margin-bottom: 20px; display: flex; flex-direction: column; align-items: center;">
-          <div id="avatarPreview" style="width: 80px; height: 80px; border-radius: 50%; background-size: cover; background-position: center; background-color: #222; border: 2px solid #555; margin-bottom: 10px;"></div>
-          <label for="avatarInput" style="color: #0095f6; font-size: 14px; font-weight: 600; cursor: pointer;">Upload Profile Photo</label>
-          <input type="file" id="avatarInput" accept="image/*" style="display: none;">
-        </div>
+      <div class="rhk-brand-logo" style="font-size: 32px; margin-bottom: 8px;">Complete Profile</div>
+      <p style="color: #888; font-size: 14px; margin-bottom: 24px;">Set up your RHK account details</p>
 
-        <input type="text" id="usernameInput" class="input-field" placeholder="Username (e.g. ragha_v0069)" required>
-        <input type="text" id="fullNameInput" class="input-field" placeholder="Full Name" required>
-        <textarea id="bioInput" class="input-field" placeholder="Bio..." style="resize: none; height: 60px;"></textarea>
-        <input type="url" id="linkInBioInput" class="input-field" placeholder="Link in Bio (e.g. https://mywebsite.com)">
-        
-        <button type="submit" id="submitBtn" class="primary-btn">Start Using RHK</button>
+      <form id="setupForm">
+        <input type="text" id="usernameInput" class="input-field" placeholder="Username" required>
+        <input type="text" id="fullNameInput" class="input-field" placeholder="Full Name">
+        <textarea id="bioInput" class="input-field" placeholder="Bio..." style="resize: none; height: 80px;"></textarea>
+        <button type="submit" class="primary-btn" style="margin-top: 5px;">Save & Continue</button>
       </form>
     </div>
   </div>
-  <script type="module" src="js/setup.js"></script>
+
+  <script type="module">
+    import { auth, db, doc, setDb, getAuth, onAuthStateChanged, setDoc } from "./js/firebase-init.js";
+
+    const setupForm = document.getElementById("setupForm");
+    const usernameInput = document.getElementById("usernameInput");
+    const fullNameInput = document.getElementById("fullNameInput");
+    const bioInput = document.getElementById("bioInput");
+
+    let currentUser = null;
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUser = user;
+        if (user.email) {
+          usernameInput.value = user.email.split("@")[0];
+        }
+      } else {
+        window.location.replace("index.html");
+      }
+    });
+
+    setupForm.onsubmit = async (e) => {
+      e.preventDefault();
+      if (!currentUser) return;
+
+      try {
+        await setDoc(doc(db, "users", currentUser.uid), {
+          uid: currentUser.uid,
+          email: currentUser.email,
+          username: usernameInput.value.trim(),
+          fullName: fullNameInput.value.trim(),
+          bio: bioInput.value.trim(),
+          photoURL: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300",
+          createdAt: new Date().toISOString()
+        }, { merge: true });
+
+        window.location.replace("home.html");
+      } catch (error) {
+        alert("Error saving profile: " + error.message);
+      }
+    };
+  </script>
 </body>
 </html>
