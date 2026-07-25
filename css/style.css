@@ -1,63 +1,329 @@
-/* ==========================================
-   RHK ADVANCED SOCIAL FEATURES - CSS ADDITIONS
-   ========================================== */
-
-/* 1. Verified Badges & User Status */
-.verified-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: #0095f6;
-  width: 14px;
-  height: 14px;
-  margin-left: 4px;
-  vertical-align: middle;
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
-/* 2. Animated Profile Frames (RHK Premium) */
-.profile-ring-premium {
-  padding: 3px;
-  background: linear-gradient(45deg, #ff0055, #7a00ff, #00ffff, #ff0055);
-  background-size: 300% 300%;
-  animation: premiumGradientAnim 4s ease infinite;
-  border-radius: 50%;
-}
-
-@keyframes premiumGradientAnim {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-/* 3. Direct Message & Chat Enhancements (direct.html) */
-.chat-container {
+body {
+  background-color: #000;
+  color: #fff;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 110px);
+}
+
+/* Header & Icons */
+.top-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid #262626;
   background: #000;
-  overflow-y: auto;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.rhk-brand-logo {
+  font-weight: 800;
+  font-size: 22px;
+  letter-spacing: 1px;
+}
+
+.top-icons {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+/* FIX: Restrain SVG icon dimensions globally */
+.top-icons svg, 
+.post-actions svg, 
+.bottom-nav svg {
+  width: 24px;
+  height: 24px;
+  fill: #fff;
+  cursor: pointer;
+}
+
+/* Inputs & Buttons */
+.input-field {
+  width: 100%;
+  padding: 10px 12px;
+  background: #121212;
+  border: 1px solid #262626;
+  color: #fff;
+  border-radius: 6px;
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.input-field:focus {
+  border-color: #555;
+  outline: none;
+}
+
+.primary-btn {
+  width: 100%;
+  padding: 10px;
+  background: #0095f6;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.primary-btn:active {
+  opacity: 0.8;
+}
+
+/* Bottom Navigation Bar */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 50px;
+  background: #000;
+  border-top: 1px solid #262626;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 1000;
+}
+
+.bottom-nav a {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  height: 100%;
+}
+
+/* Feed & Posts Layout */
+main {
+  flex: 1;
+  padding-bottom: 60px;
+  max-width: 470px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.post-card {
+  border-bottom: 1px solid #262626;
+  margin-bottom: 15px;
+}
+
+.post-header {
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+}
+
+.post-user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: #fff;
+}
+
+.post-user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  background-color: #333;
+}
+
+.post-username {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.post-media-container {
+  width: 100%;
+  background: #111;
+}
+
+.post-image {
+  width: 100%;
+  max-height: 550px;
+  object-fit: cover;
+  display: block;
+}
+
+.post-actions {
+  display: flex;
+  justify-space: between;
+  padding: 10px 12px;
+}
+
+.post-actions-left {
+  display: flex;
+  gap: 15px;
+}
+
+.post-footer {
+  padding: 0 12px 12px 12px;
+  font-size: 14px;
+}
+
+.post-caption span {
+  font-weight: 600;
+  margin-right: 6px;
+}
+
+/* Stories Tray */
+.stories-container {
+  display: flex;
+  gap: 15px;
+  padding: 10px 15px;
+  overflow-x: auto;
+  border-bottom: 1px solid #262626;
+  background: #000;
+}
+
+.story-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.story-ring {
+  width: 66px;
+  height: 66px;
+  border-radius: 50%;
+  background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.story-img {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  border: 2px solid #000;
+  background-color: #222;
+}
+
+.story-username {
+  font-size: 11px;
+  color: #aaa;
+  max-width: 66px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Modals & Overlays */
+.modal-overlay, .story-viewer-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.85);
+  display: none;
+  flex-direction: column;
+  z-index: 2000;
+}
+
+.modal-sheet {
+  background: #262626;
+  width: 100%;
+  max-width: 400px;
+  margin: auto;
+  border-radius: 12px;
+  overflow: hidden;
+  padding: 10px;
+}
+
+.modal-option {
+  padding: 14px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  color: #fff;
+  border-bottom: 1px solid #333;
+}
+
+.modal-option:last-child {
+  border-bottom: none;
+}
+
+/* Setup Page Container */
+.setup-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.setup-box {
+  width: 100%;
+  max-width: 350px;
+  text-align: center;
+}
+
+/* Verified Badge & Premium Ring */
+.verified-badge {
+  color: #0095f6;
+  font-size: 12px;
+  margin-left: 2px;
+}
+
+.profile-ring-premium {
+  background: linear-gradient(45deg, #ffd700, #ff8c00, #ff4500, #da70d6);
+  animation: rotateGlow 4s linear infinite;
+}
+
+@keyframes rotateGlow {
+  0% { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(360deg); }
+}
+
+/* Chat Bubbles */
+.chat-container {
+  flex: 1;
   padding: 15px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 70px;
 }
 
 .message-bubble {
   max-width: 75%;
   padding: 10px 14px;
   border-radius: 18px;
-  margin-bottom: 8px;
   font-size: 14px;
-  position: relative;
-  word-wrap: break-word;
+  word-break: break-word;
 }
 
 .message-bubble.incoming {
-  background-color: #262626;
+  background: #262626;
   color: #fff;
   align-self: flex-start;
   border-bottom-left-radius: 4px;
 }
 
 .message-bubble.outgoing {
-  background-color: #0095f6;
+  background: #0095f6;
   color: #fff;
   align-self: flex-end;
   border-bottom-right-radius: 4px;
@@ -65,162 +331,11 @@
 
 .message-status {
   font-size: 10px;
-  color: #a8a8a8;
   text-align: right;
   margin-top: 2px;
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  justify-content: flex-end;
+  color: rgba(255,255,255,0.7);
 }
 
 .message-status.seen {
-  color: #34b7f1; /* WhatsApp Blue ticks style */
-}
-
-/* Typing Indicator Animation */
-.typing-indicator {
-  display: flex;
-  gap: 4px;
-  padding: 8px 12px;
-  background: #262626;
-  border-radius: 16px;
-  width: fit-content;
-  align-self: flex-start;
-  margin-bottom: 8px;
-}
-
-.typing-dot {
-  width: 6px;
-  height: 6px;
-  background: #a8a8a8;
-  border-radius: 50%;
-  animation: typingBounce 1.4s infinite ease-in-out both;
-}
-
-.typing-dot:nth-child(1) { animation-delay: -0.32s; }
-.typing-dot:nth-child(2) { animation-delay: -0.16s; }
-
-@keyframes typingBounce {
-  0%, 80%, 100% { transform: scale(0); }
-  40% { transform: scale(1.0); }
-}
-
-/* Voice Note Player in Chat */
-.voice-note-player {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 200px;
-}
-
-.play-voice-btn {
-  background: #fff;
-  color: #000;
-  border: none;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.voice-waveform {
-  flex-grow: 1;
-  height: 20px;
-  background: repeating-linear-gradient(90deg, #fff, #fff 2px, transparent 2px, transparent 6px);
-}
-
-/* 4. Posts Polls Component */
-.post-poll-container {
-  padding: 10px 15px;
-  background: #121212;
-  border-radius: 8px;
-  margin: 10px 15px;
-  border: 1px solid #262626;
-}
-
-.poll-option-btn {
-  display: block;
-  width: 100%;
-  padding: 10px;
-  margin-top: 6px;
-  background: #1a1a1a;
-  border: 1px solid #333;
-  color: #fff;
-  border-radius: 6px;
-  text-align: left;
-  cursor: pointer;
-  font-weight: 500;
-  transition: background 0.2s;
-}
-
-.poll-option-btn:hover {
-  background: #262626;
-}
-
-/* 5. Profile Highlights Tray */
-.highlights-container {
-  display: flex;
-  gap: 15px;
-  padding: 10px 15px;
-  overflow-x: auto;
-  border-bottom: 1px solid #262626;
-}
-
-.highlight-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-  cursor: pointer;
-}
-
-.highlight-ring {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  border: 1px solid #555;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: #121212;
-}
-
-.highlight-img {
-  width: 58px;
-  height: 58px;
-  border-radius: 50%;
-  background-size: cover;
-  background-position: center;
-}
-
-.highlight-title {
-  font-size: 11px;
-  color: #dbdbdb;
-  text-align: center;
-}
-
-/* 6. Message Reactions Floating Bar */
-.reaction-popup-bar {
-  display: flex;
-  gap: 8px;
-  background: #262626;
-  padding: 8px 12px;
-  border-radius: 20px;
-  position: absolute;
-  z-index: 500;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-}
-
-.reaction-popup-bar span {
-  font-size: 20px;
-  cursor: pointer;
-  transition: transform 0.1s;
-}
-
-.reaction-popup-bar span:hover {
-  transform: scale(1.3);
+  color: #8ed1fc;
 }
