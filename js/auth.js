@@ -1,91 +1,55 @@
-import { auth, db, doc, getDoc, setDoc, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "./firebase-init.js";
+import { auth, db, signInWithEmailAndPassword, createUserWithEmailAndPassword, doc, setDoc } from "./firebase-init.js";
 
 const loginForm = document.getElementById("loginForm");
 const emailInput = document.getElementById("emailInput");
 const passwordInput = document.getElementById("passwordInput");
-const loginBtn = document.getElementById("loginBtn");
 const toggleModeText = document.getElementById("toggleModeText");
 
 let isSignUp = false;
 
-toggleModeText.addEventListener("click", () => {
-  isSignUp = !isSignUp;
-  if (isSignUp) {
-    loginBtn.innerText = "Sign Up";
-    toggleModeText.innerHTML = `Already have an account? <span style="color: #0095f6; font-weight: 600;">Sign in</span>`;
-  } else {
-    loginBtn.innerText = "Sign In";
-    toggleModeText.innerHTML = `Don't have an account? <span style="color: #0095f6; font-weight: 600;">Sign up</span>`;
-  }
-});
-
-onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    try {
-      const userSnap = await getDoc(doc(db, "users", user.uid));
-      if (userSnap.exists()) {
-        window.location.href = "home.html";
-      } else {
-        window.location.href = "setup.html";
-      }
-    } catch (err) {
-      console.error("Firestore navigation check error:", err);
+if (toggleModeText) {
+  toggleModeText.onclick = () => {
+    isSignUp = !isSignUp;
+    const btn = document.getElementById("loginBtn");
+    if (isSignUp) {
+      toggleModeText.innerHTML = `Already have an account? <span style="color: #0095f6; font-weight: 600;">Sign in</span>`;
+      btn.innerText = "Sign Up";
+    } else {
+      toggleModeText.innerHTML = `Don't have an account? <span style="color: #0095f6; font-weight: 600;">Sign up</span>`;
+      btn.innerText = "Sign In";
     }
-  }
-});
+  };
+}
 
 if (loginForm) {
-  loginForm.addEventListener("submit", async (e) => {
+  loginForm.onsubmit = async (e) => {
     e.preventDefault();
     const email = emailInput.value.trim();
-    const password = passwordInput.value.trim();
-
-    if (!email || !password) {
-      alert("Please fill in all fields.");
-      return;
-    }
+    const password = passwordInput.value;
 
     try {
       if (isSignUp) {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
-        const userDocRef = doc(db, "users", user.uid);
-        const userSnap = await getDoc(userDocRef);
+        
+        // Create initial user document record
+        await setDoc(doc(db, "users", user.uid), {
+          uid: user.uid,
+          email: email,
+          username: email.split("@")[0],
+          fullName: "",
+          bio: "",
+          photoURL: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300",
+          createdAt: new Date().toISOString()
+        });
 
-        if (!userSnap.exists()) {
-          // Initialize default document fields for new signups
-          const defaultUsername = email.split("@")[0] + Math.floor(Math.random() * 1000);
-          await setDoc(userDocRef, {
-            uid: user.uid,
-            email: email,
-            username: defaultUsername,
-            fullName: "",
-            bio: "",
-            profilePic: "",
-            isVerified: false,
-            isPrivate: false,
-            isPremium: false,
-            createdAt: new Date().toISOString(),
-            usernameHistory: [{ username: defaultUsername, changedAt: new Date().toISOString() }]
-          });
-        }
-
-        window.location.href = "setup.html";
+        window.location.replace("setup.html");
       } else {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
-        const userDocRef = doc(db, "users", user.uid);
-        const userSnap = await getDoc(userDocRef);
-
-        if (userSnap.exists()) {
-          window.location.href = "home.html";
-        } else {
-          window.location.href = "setup.html";
-        }
+        await signInWithEmailAndPassword(auth, email, password);
+        window.location.replace("home.html");
       }
     } catch (error) {
-      console.error("WebView Auth Error:", error.code, error.message);
-      alert("Login failed: " + error.message);
+      alert("Authentication error: " + error.message);
     }
-  });
+  };
 }
