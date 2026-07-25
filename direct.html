@@ -5,26 +5,71 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>RHK Direct Messages</title>
   <link rel="stylesheet" href="css/style.css">
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+      background-color: #000;
+    }
+    .chat-top-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid #262626;
+      background: #000;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .chat-input-area {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: #000;
+      border-top: 1px solid #262626;
+      padding: 10px 16px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      z-index: 100;
+    }
+    .send-action-btn {
+      background: #0095f6;
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
 
-  <header class="top-nav">
-    <div style="display: flex; align-items: center; gap: 10px;">
+  <!-- Chat Header -->
+  <div class="chat-top-nav">
+    <div style="display: flex; align-items: center; gap: 12px;">
       <a href="home.html" style="color: #fff; text-decoration: none; font-size: 20px;">←</a>
-      <div id="chatHeaderName" style="font-weight: 600; font-size: 16px;">Messages</div>
+      <span id="chatHeaderName" style="font-weight: 600; font-size: 16px;">Messages</span>
     </div>
-  </header>
+  </div>
 
+  <!-- Messages Display Container -->
   <div class="chat-container" id="chatContainer">
-    <p style="text-align: center; color: #888; margin-top: 20px;">Select a conversation or start chatting.</p>
+    <p style="text-align: center; color: #888; margin-top: 20px;">Loading conversation...</p>
   </div>
 
-  <!-- Chat Input Bar -->
-  <div style="position: fixed; bottom: 0; left: 0; width: 100%; background: #000; border-top: 1px solid #262626; padding: 10px 15px; display: flex; align-items: center; gap: 10px; z-index: 1000;">
+  <!-- Message Input Bar -->
+  <div class="chat-input-area">
     <input type="text" id="messageInput" class="input-field" placeholder="Message..." style="margin-bottom: 0; border-radius: 20px;">
-    <button id="sendBtn" class="primary-btn" style="width: auto; padding: 10px 20px; border-radius: 20px;">Send</button>
+    <button id="sendBtn" class="send-action-btn">Send</button>
   </div>
 
+  <!-- Script for Handling Realtime Chat Logic -->
   <script type="module" src="js/direct.js"></script>
 </body>
 </html>
