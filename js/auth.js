@@ -1,4 +1,4 @@
-import { auth, db, doc, getDoc, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "./firebase-init.js";
+import { auth, db, doc, getDoc, setDoc, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "./firebase-init.js";
 
 const loginForm = document.getElementById("loginForm");
 const emailInput = document.getElementById("emailInput");
@@ -52,11 +52,25 @@ if (loginForm) {
         const userDocRef = doc(db, "users", user.uid);
         const userSnap = await getDoc(userDocRef);
 
-        if (userSnap.exists()) {
-          window.location.href = "home.html";
-        } else {
-          window.location.href = "setup.html";
+        if (!userSnap.exists()) {
+          // Initialize default document fields for new signups
+          const defaultUsername = email.split("@")[0] + Math.floor(Math.random() * 1000);
+          await setDoc(userDocRef, {
+            uid: user.uid,
+            email: email,
+            username: defaultUsername,
+            fullName: "",
+            bio: "",
+            profilePic: "",
+            isVerified: false,
+            isPrivate: false,
+            isPremium: false,
+            createdAt: new Date().toISOString(),
+            usernameHistory: [{ username: defaultUsername, changedAt: new Date().toISOString() }]
+          });
         }
+
+        window.location.href = "setup.html";
       } else {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
