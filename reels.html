@@ -22,16 +22,25 @@
         return;
       }
       
+      const usersSnap = await getDocs(collection(db, "users"));
+      const usersMap = {};
+      usersSnap.forEach(docSnap => {
+        usersMap[docSnap.id] = docSnap.data();
+      });
+
       const snap = await getDocs(collection(db, "posts"));
       let html = "";
       snap.forEach(docSnap => {
         const p = docSnap.data();
         if (p.mediaType === 'reel') {
+          const reelAuthor = usersMap[p.userId] || {};
+          const isVerified = reelAuthor.isVerified ? `<span class="verified-badge">✔️</span>` : '';
+
           html += `
             <div style="padding: 15px; border-bottom: 1px solid #262626;">
               <a href="view-profile.html?uid=${p.userId}" style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px; text-decoration: none; color: #fff;">
-                <div style="width: 32px; height: 32px; border-radius: 50%; background-image: url('${p.userPhoto}'); background-size: cover; background-position: center;"></div>
-                <span style="font-weight: 600; font-size: 14px;">${p.username}</span>
+                <div style="width: 32px; height: 32px; border-radius: 50%; background-image: url('${p.userPhoto || reelAuthor.photoURL}'); background-size: cover; background-position: center;"></div>
+                <span style="font-weight: 600; font-size: 14px;">${p.username} ${isVerified}</span>
               </a>
               <video controls src="${p.mediaUrl}" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 8px;"></video>
               <p style="margin-top: 8px; font-size: 14px;">${p.caption || ''}</p>
