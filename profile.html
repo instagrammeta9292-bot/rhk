@@ -6,136 +6,111 @@
   <title>RHK Profile</title>
   <link rel="stylesheet" href="css/style.css">
   <style>
-    .profile-top-bar {
+    .profile-header {
+      padding: 15px 16px;
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 15px;
+      flex-direction: column;
+      gap: 15px;
       border-bottom: 1px solid #262626;
-      font-weight: bold;
-      font-size: 16px;
     }
-    .profile-info-section {
-      padding: 15px;
-    }
-    .profile-row {
+    .profile-top-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
+    }
+    .profile-avatar-large {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background-size: cover;
+      background-position: center;
+      background-color: #333;
     }
     .profile-stats {
       display: flex;
       gap: 25px;
       text-align: center;
     }
-    .stat-num {
+    .profile-stats div div:first-child {
       font-weight: 700;
       font-size: 16px;
     }
-    .stat-label {
+    .profile-stats div div:last-child {
       font-size: 12px;
       color: #aaa;
     }
-    .profile-actions {
+    .profile-bio {
+      font-size: 14px;
+      line-height: 1.4;
+    }
+    .profile-actions-row {
       display: flex;
       gap: 8px;
-      margin-top: 15px;
     }
-    .profile-tabs {
-      display: flex;
-      border-top: 1px solid #262626;
-      border-bottom: 1px solid #262626;
-    }
-    .tab-item {
+    .profile-btn {
       flex: 1;
-      text-align: center;
-      padding: 12px;
+      padding: 8px;
+      background: #262626;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 13px;
       cursor: pointer;
-      border-bottom: 2px solid transparent;
-      fill: #888;
+      text-align: center;
+      text-decoration: none;
     }
-    .tab-item.active {
-      border-bottom-color: #fff;
-      fill: #fff;
+    .profile-btn:hover {
+      background: #363636;
     }
-    .user-posts-grid {
+    .profile-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 2px;
-    }
-    .grid-thumb {
-      width: 100%;
-      aspect-ratio: 1/1;
-      background-size: cover;
-      background-position: center;
-      background-color: #1a1a1a;
-      position: relative;
+      padding-bottom: 60px;
     }
   </style>
 </head>
 <body>
 
-  <div class="profile-top-bar">
-    <div style="display: flex; align-items: center; gap: 4px;">
-      <span id="topUsernameText">username</span>
-      <span id="topVerifiedBadge" style="display: none;">✔️</span>
-    </div>
-    <div style="display: flex; gap: 15px; align-items: center;">
-      <svg id="settingsGear" style="width: 24px; height: 24px; fill: #fff; cursor: pointer;" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c-.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c-.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+  <div class="top-nav">
+    <div class="rhk-brand-logo" id="profileUsernameHeader">RHK</div>
+    <div class="top-icons">
+      <svg viewBox="0 0 24 24" onclick="logout()"><path d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
     </div>
   </div>
 
-  <div class="profile-info-section">
-    <div class="profile-row">
-      <div id="pAvatarContainer" style="padding: 3px; border-radius: 50%;">
-        <div id="pAvatar" style="width: 74px; height: 74px; border-radius: 50%; background-size: cover; background-position: center; background-color: #222;"></div>
-      </div>
+  <div class="profile-header">
+    <div class="profile-top-row">
+      <div class="profile-avatar-large" id="profileAvatar"></div>
       <div class="profile-stats">
         <div>
-          <div class="stat-num" id="postsCount">0</div>
-          <div class="stat-label">posts</div>
+          <div id="postsCount">0</div>
+          <div>Posts</div>
         </div>
         <div>
-          <div class="stat-num" id="followersCount">0</div>
-          <div class="stat-label">followers</div>
+          <div id="followersCount">0</div>
+          <div>Followers</div>
         </div>
         <div>
-          <div class="stat-num" id="followingCount">0</div>
-          <div class="stat-label">following</div>
+          <div id="followingCount">0</div>
+          <div>Following</div>
         </div>
       </div>
     </div>
     
-    <div style="margin-top: 12px;">
-      <div id="pFullName" style="font-weight: 600; font-size: 14px;">Full Name</div>
-      <div id="pBio" style="font-size: 13px; color: #ccc; margin-top: 2px; white-space: pre-line;"></div>
-      <div id="pLinkContainer" style="margin-top: 4px; display: none;">
-        <a id="pLinkAnchor" href="#" target="_blank" style="color: #00376b; font-size: 13px; font-weight: 600; text-decoration: none;"></a>
-      </div>
+    <div>
+      <div id="profileFullName" style="font-weight: 600; font-size: 14px;"></div>
+      <div class="profile-bio" id="profileBio"></div>
     </div>
 
-    <div class="profile-actions">
-      <button class="secondary-btn" style="background: #262626; font-size: 13px; padding: 7px; flex: 1; border: none; color: #fff; border-radius: 8px; cursor: pointer;" onclick="window.location.href='edit-profile.html'">Edit Profile</button>
+    <div class="profile-actions-row">
+      <button class="profile-btn" onclick="alert('Edit profile feature coming soon!')">Edit Profile</button>
+      <button class="profile-btn" onclick="shareProfile()">Share Profile</button>
     </div>
   </div>
 
-  <div class="profile-tabs">
-    <div class="tab-item active" id="tabPosts" onclick="switchTab('posts')">
-      <svg style="width: 20px; height: 20px;" viewBox="0 0 24 24"><path d="M3 3v18h18V3H3zm8 16H5v-6h6v6zm0-8H5V5h6v6zm8 8h-6v-6h6v6zm0-8h-6V5h6v6z"/></svg>
-    </div>
-    <div class="tab-item" id="tabReels" onclick="switchTab('reels')">
-      <svg style="width: 20px; height: 20px;" viewBox="0 0 24 24"><path d="M18 3H6c-1.66 0-3 1.34-3 3v12c0 1.66 1.34 3 3 3h12c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3zm-9 13.5v-9l7 4.5-7 4.5z"/></svg>
-    </div>
-    <div class="tab-item" id="tabStories" onclick="switchTab('stories')">
-      <svg style="width: 20px; height: 20px;" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
-    </div>
-  </div>
-
-  <div class="user-posts-grid" id="userPostsGrid"></div>
-  
-  <div id="noPostsPlaceholder" style="text-align: center; padding: 40px; display: none;">
-    <div style="font-weight: 700; font-size: 18px; margin-bottom: 5px;">No content found</div>
-  </div>
+  <div class="profile-grid" id="userPostsGrid"></div>
 
   <nav class="bottom-nav">
     <a href="home.html"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></a>
@@ -146,126 +121,55 @@
   </nav>
 
   <script type="module">
-    import { auth, signOut, onAuthStateChanged, db, doc, getDoc, collection, getDocs } from "./js/firebase-init.js";
+    import { auth, db, doc, getDoc, collection, getDocs, query, where, signOut, onAuthStateChanged } from "./js/firebase-init.js";
 
-    const topUsernameText = document.getElementById("topUsernameText");
-    const topVerifiedBadge = document.getElementById("topVerifiedBadge");
-    const pAvatar = document.getElementById("pAvatar");
-    const pAvatarContainer = document.getElementById("pAvatarContainer");
-    const pFullName = document.getElementById("pFullName");
-    const pBio = document.getElementById("pBio");
-    const pLinkContainer = document.getElementById("pLinkContainer");
-    const pLinkAnchor = document.getElementById("pLinkAnchor");
-    const postsCount = document.getElementById("postsCount");
-    const followersCount = document.getElementById("followersCount");
-    const followingCount = document.getElementById("followingCount");
+    const profileUsernameHeader = document.getElementById("profileUsernameHeader");
+    const profileAvatar = document.getElementById("profileAvatar");
+    const profileFullName = document.getElementById("profileFullName");
+    const profileBio = document.getElementById("profileBio");
     const userPostsGrid = document.getElementById("userPostsGrid");
-    const noPostsPlaceholder = document.getElementById("noPostsPlaceholder");
-    const settingsGear = document.getElementById("settingsGear");
-
-    let allUserPosts = [];
+    const postsCount = document.getElementById("postsCount");
 
     onAuthStateChanged(auth, async (user) => {
       if (user) {
-        const snap = await getDoc(doc(db, "users", user.uid));
-        if (snap.exists()) {
-          const data = snap.data();
-          topUsernameText.innerText = data.username || "username";
-          
-          if (data.isVerified) {
-            topVerifiedBadge.style.display = "inline";
-          }
-
-          if (data.isPremium) {
-            pAvatarContainer.classList.add("profile-ring-premium");
-          }
-
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists()) {
+          const data = userDoc.data();
+          profileUsernameHeader.innerText = data.username || "RHK Profile";
+          profileFullName.innerText = data.fullName || "";
+          profileBio.innerText = data.bio || "";
           if (data.photoURL) {
-            pAvatar.style.backgroundImage = `url('${data.photoURL}')`;
+            profileAvatar.style.backgroundImage = `url('${data.photoURL}')`;
           }
-          pFullName.innerText = data.fullName || "";
-          pBio.innerText = data.bio || "";
-
-          if (data.linkInBio) {
-            pLinkContainer.style.display = "block";
-            pLinkAnchor.href = data.linkInBio;
-            try {
-              const urlObj = new URL(data.linkInBio);
-              pLinkAnchor.innerText = urlObj.hostname + urlObj.pathname;
-            } catch(e) {
-              pLinkAnchor.innerText = data.linkInBio;
-            }
-          }
-
-          followersCount.innerText = data.followers ? data.followers.length : 0;
-          followingCount.innerText = data.following ? data.following.length : 0;
-
-          const postsSnap = await getDocs(collection(db, "posts"));
-          allUserPosts = [];
-          let totalPostsCount = 0;
-
-          postsSnap.forEach((docSnap) => {
-            const p = docSnap.data();
-            if (p.userId === user.uid) {
-              if (p.mediaType === 'post') totalPostsCount++;
-              allUserPosts.push(p);
-            }
-          });
-
-          postsCount.innerText = totalPostsCount;
-          renderGrid('post');
         }
+        loadUserPosts(user.uid);
       } else {
         window.location.href = "index.html";
       }
     });
 
-    window.switchTab = (type) => {
-      document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
-      if(type === 'posts') document.getElementById('tabPosts').classList.add('active');
-      if(type === 'reels') document.getElementById('tabReels').classList.add('active');
-      if(type === 'stories') document.getElementById('tabStories').classList.add('active');
-
-      if(type === 'posts') renderGrid('post');
-      if(type === 'reels') renderGrid('reel');
-      if(type === 'stories') renderGrid('story');
-    };
-
-    function renderGrid(targetMediaType) {
-      let gridHtml = "";
+    async function loadUserPosts(uid) {
+      const q = query(collection(db, "posts"), where("uid", "==", uid));
+      const querySnapshot = await getDocs(q);
+      let html = "";
       let count = 0;
-
-      allUserPosts.forEach(p => {
-        let matches = false;
-        if(targetMediaType === 'post' && p.mediaType === 'post') matches = true;
-        if(targetMediaType === 'reel' && p.mediaType === 'reel') matches = true;
-        if(targetMediaType === 'story' && (p.mediaType === 'story' || p.mediaType === 'story_video')) matches = true;
-
-        if(matches) {
-          count++;
-          let thumbUrl = p.mediaUrl;
-          if(p.mediaType === 'reel' || p.mediaType === 'story_video') {
-            thumbUrl = "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=300";
-          }
-          gridHtml += `<div class="grid-thumb" style="background-image: url('${thumbUrl}')"></div>`;
-        }
+      querySnapshot.forEach((docSnap) => {
+        count++;
+        const p = docSnap.data();
+        html += `<div class="grid-thumbnail" style="width:100%; aspect-ratio:1/1; background-size:cover; background-position:center; background-image: url('${p.mediaUrl}'); background-color:#1a1a1a;"></div>`;
       });
-
-      if (count > 0) {
-        userPostsGrid.style.display = "grid";
-        userPostsGrid.innerHTML = gridHtml;
-        noPostsPlaceholder.style.display = "none";
-      } else {
-        userPostsGrid.style.display = "none";
-        noPostsPlaceholder.style.display = "block";
-      }
+      userPostsGrid.innerHTML = html || `<p style="grid-column: span 3; text-align: center; color: #888; padding: 40px;">No posts shared yet</p>`;
+      postsCount.innerText = count;
     }
 
-    settingsGear.onclick = async () => {
-      if(confirm("Log out of RHK?")) {
-        await signOut(auth);
-        window.location.href = "index.html";
-      }
+    window.logout = async () => {
+      await signOut(auth);
+      window.location.href = "index.html";
+    };
+
+    window.shareProfile = () => {
+      navigator.clipboard.writeText(window.location.href);
+      alert("Profile link copied to clipboard!");
     };
   </script>
 </body>
